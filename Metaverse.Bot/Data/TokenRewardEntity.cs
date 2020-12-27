@@ -12,9 +12,9 @@ namespace Metaverse.Bot.Data
         {
             GuildId = guildId;
             TargetRoleId = row.TargetRoleId;
-            TargetTokenId = row.TargetTokenId;
-            MinimumTokenId = row.MinimumTokenId;
-            MaximumTokenId = row.MaximumTokenId;
+            TargetTokenId_S = row.TargetTokenId?.ToString();
+            MinimumTokenId_S = row.MinimumTokenId?.ToString();
+            MaximumTokenId_S = row.MaximumTokenId?.ToString();
             IsAllTokens = row.IsAllTokens;
             RuleCreatedDate = row.RuleCreatedDate;
             CreatorAddress = row.CreatorAddress;
@@ -22,9 +22,15 @@ namespace Metaverse.Bot.Data
 
         public ulong GuildId { get; set; }
         public ulong TargetRoleId { get; set; }
-        public BigInteger? TargetTokenId { get; set; }
-        public BigInteger? MinimumTokenId { get; set; }
-        public BigInteger? MaximumTokenId { get; set; }
+        public string TargetTokenId_S { get; set; }
+        [IgnoreProperty] public BigInteger? TargetTokenId => string.IsNullOrWhiteSpace(TargetTokenId_S) ? (BigInteger?)null : BigInteger.Parse(TargetTokenId_S);
+
+        public string MinimumTokenId_S { get; set; }
+        [IgnoreProperty] public BigInteger? MinimumTokenId => string.IsNullOrWhiteSpace(MinimumTokenId_S) ? (BigInteger?)null : BigInteger.Parse(MinimumTokenId_S);
+
+        public string MaximumTokenId_S { get; set; }
+        [IgnoreProperty] public BigInteger? MaximumTokenId => string.IsNullOrWhiteSpace(MaximumTokenId_S) ? (BigInteger?)null : BigInteger.Parse(MaximumTokenId_S);
+
         public bool IsAllTokens { get; set; } = false;
         
         public DateTimeOffset RuleCreatedDate { get; set; }
