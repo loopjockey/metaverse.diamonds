@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 using System;
+using System.Numerics;
 
 namespace Metaverse.Bot.Data
 {
@@ -21,15 +22,26 @@ namespace Metaverse.Bot.Data
 
         public ulong GuildId { get; set; }
         public ulong TargetRoleId { get; set; }
-        public ulong? TargetTokenId { get; set; }
-        public ulong? MinimumTokenId { get; set; }
-        public ulong? MaximumTokenId { get; set; }
+        public BigInteger? TargetTokenId { get; set; }
+        public BigInteger? MinimumTokenId { get; set; }
+        public BigInteger? MaximumTokenId { get; set; }
         public bool IsAllTokens { get; set; } = false;
         
         public DateTimeOffset RuleCreatedDate { get; set; }
         public string CreatorAddress { get; set; }
 
         public const string TableName = "TokenRewards";
+
+        public bool AppliesTo(string creatorAddress, BigInteger tokenId) 
+        {
+            if (creatorAddress != CreatorAddress) return false;
+            if (IsAllTokens) return true;
+            if (TargetTokenId == tokenId) return true;
+            if (!MinimumTokenId.HasValue) return false;
+            if (!MaximumTokenId.HasValue) return false;
+            return tokenId <= MaximumTokenId &&
+                   tokenId >= MinimumTokenId;
+        }
 
         public class PartitionKey
         {
@@ -64,7 +76,7 @@ namespace Metaverse.Bot.Data
                 IsAllTokens = true;
             }
 
-            public Row(string creatorAddress, ulong tokenId, DateTimeOffset ruleCreatedDate)
+            public Row(string creatorAddress, BigInteger tokenId, DateTimeOffset ruleCreatedDate)
             {
                 _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{tokenId}";
                 CreatorAddress = creatorAddress;
@@ -72,7 +84,7 @@ namespace Metaverse.Bot.Data
                 TargetTokenId = tokenId;
             }
 
-            public Row(string creatorAddress, ulong minimumTokenId, ulong maximumTokenId, DateTimeOffset ruleCreatedDate)
+            public Row(string creatorAddress, BigInteger minimumTokenId, BigInteger maximumTokenId, DateTimeOffset ruleCreatedDate)
             {
                 _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{minimumTokenId}-{maximumTokenId}";
                 CreatorAddress = creatorAddress;
@@ -81,9 +93,9 @@ namespace Metaverse.Bot.Data
                 MaximumTokenId = maximumTokenId;
             }
 
-            public ulong? TargetTokenId { get; set; }
-            public ulong? MinimumTokenId { get; set; }
-            public ulong? MaximumTokenId { get; set; }
+            public BigInteger? TargetTokenId { get; set; }
+            public BigInteger? MinimumTokenId { get; set; }
+            public BigInteger? MaximumTokenId { get; set; }
             public bool IsAllTokens { get; set; } = false;
             public ulong TargetRoleId { get; set; }
             public DateTimeOffset RuleCreatedDate { get; set; }
@@ -101,15 +113,15 @@ namespace Metaverse.Bot.Data
                     row = new Row(creatorAddress, ruleCreatedDate);
                     return true;
                 }
-                if (ulong.TryParse(tokenReferencePart, out var tokenId)) 
+                if (BigInteger.TryParse(tokenReferencePart, out var tokenId)) 
                 {
                     row = new Row(creatorAddress, tokenId, ruleCreatedDate);
                     return true;
                 }
                 var range = tokenReferencePart.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
                 if (range.Length == 2 &&
-                    ulong.TryParse(range[0], out var minimumTokenId) &&
-                    ulong.TryParse(range[1], out var maximumTokenId))
+                    BigInteger.TryParse(range[0], out var minimumTokenId) &&
+                    BigInteger.TryParse(range[1], out var maximumTokenId))
                 {
                     row = new Row(creatorAddress, minimumTokenId, maximumTokenId, ruleCreatedDate);
                     return true;

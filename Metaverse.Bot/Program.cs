@@ -55,8 +55,6 @@ namespace Metaverse.Bot
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<HttpClient>()
                 .AddSingleton(new Web3("https://mainnet.infura.io/v3/de5f71e6f3704e09bdb97cbdcca981f9"))
-                .AddSingleton<SignatureValidator>()
-                .AddSingleton<VerificationMessageParser>()
                 .AddSingleton<ERC721Client>()
                 .AddSingleton(new TableStorageClient("UseDevelopmentStorage=true"))
                 .BuildServiceProvider();

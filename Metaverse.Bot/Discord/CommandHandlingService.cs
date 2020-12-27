@@ -37,8 +37,6 @@ namespace Metaverse.Bot.Discord
             if (message.Author.IsBot) return;
 
             var argPos = 0;
-            //if ()
-              //  return;
             if (!message.HasMentionPrefix(_discord.CurrentUser, ref argPos) &&
                 !message.HasStringPrefix("!metaverse ", ref argPos))
                 return;
