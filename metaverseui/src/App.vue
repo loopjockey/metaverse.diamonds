@@ -21,6 +21,6 @@ export default Vue.extend({
   background: url(/logo.png) !important;
   background-size: 300px 480px !important;
   background-repeat: no-repeat !important;
-  background-position: top 20vh center !important;
+  background-position: bottom -100px right -100px !important;
 }
 </style>

@@ -12,7 +12,7 @@ const routes: Array<RouteConfig> = [
     component: Home
   },
   {
-    path: "/g/:id",
+    path: "/g/:guildId",
     name: "Guild",
     component: Guild
   }

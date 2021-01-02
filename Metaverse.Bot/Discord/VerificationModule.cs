@@ -15,7 +15,6 @@ namespace Metaverse.Bot.Discord
         /// https://danfinlay.github.io/js-eth-personal-sign-examples/
         /// </summary>
         [Command("verify")]
-        [RequireContext(ContextType.DM, ErrorMessage = "WARNING! This kind of message should NOT BE SENT in a group channel. Please delete your message immediately.")]
         public async Task VerifyOwnership(params string[] parameters)
         {
             if (parameters.Length != 2)
@@ -44,6 +43,7 @@ namespace Metaverse.Bot.Discord
                 return;
             }
 
+            var messageString = $"I wish to use the ERC721 token {messageModel.Path} for the purposes of receiving elevated permissions in the discord server #{messageModel.GuildId}. This signature is valid as of {messageModel.OriginalTicks}.";
             var usersAddress = SignatureValidator.GetAddressOfSignature(signature, message);
             var ownershipAddress = await ERC721Client.GetAddressThatOwnsToken(erc721Token.creatorAddress, erc721Token.tokenId);
             if (usersAddress != ownershipAddress)

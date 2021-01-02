@@ -7,4 +7,13 @@ Vue.use(Plugin)
 
 Vue.use(Vuetify);
 
-export default new Vuetify({});  
+export default new Vuetify({
+    theme: {
+        themes: {
+            light: {
+                primary: '#d2927d',
+                secondary: '#eedbcf'
+            }
+        }
+    }
+});  

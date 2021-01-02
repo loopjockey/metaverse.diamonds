@@ -44,6 +44,7 @@ namespace Metaverse.Bot.Ethereum
                 Action = action,
                 Path = path,
                 GuildId = gGuildId,
+                OriginalTicks = jsTicks,
                 Timestamp = signatureDate
             };
             return true;
@@ -95,5 +96,6 @@ namespace Metaverse.Bot.Ethereum
         public string Path { get; set; }
         public ulong GuildId { get; set; }
         public DateTimeOffset Timestamp { get; set; }
+        public long OriginalTicks { get; set; }
     }
 }
