@@ -46,3 +46,5 @@ C:\src\Metaverse.Bot\Metaverse.Bot\obj\Debug\netcoreapp3.1\Metaverse.Bot.csproj.
 C:\src\Metaverse.Bot\Metaverse.Bot\obj\Debug\netcoreapp3.1\Metaverse.Bot.dll
 C:\src\Metaverse.Bot\Metaverse.Bot\obj\Debug\netcoreapp3.1\Metaverse.Bot.pdb
 C:\src\Metaverse.Bot\Metaverse.Bot\obj\Debug\netcoreapp3.1\Metaverse.Bot.genruntimeconfig.cache
+C:\src\Metaverse.Bot\Metaverse.Bot\bin\Debug\netcoreapp3.1\Metaverse.Core.dll
+C:\src\Metaverse.Bot\Metaverse.Bot\bin\Debug\netcoreapp3.1\Metaverse.Core.pdb

@@ -3,6 +3,7 @@ using Metaverse.Bot.Data;
 using System.Threading.Tasks;
 using Metaverse.Bot.Ethereum;
 using System.Linq;
+using Metaverse.Core.Ethereum;
 
 namespace Metaverse.Bot.Discord
 {

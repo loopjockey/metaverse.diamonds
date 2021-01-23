@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "V1g7kqmItxXEXbbhBsSvlGoEtqXz4x8+1QOCZOVUf+B+he8bUDxm7Pp5llYW84F0MNOVZvHE7NrIbgKWZgFSLg==",
+  "dgSpecHash": "vdr4WHb/7KHKVW9TnUX7/rDCZKbpEMWFCMNF6eDxWzFWzT1R7KtPTRqPzs23F/6dIWv02ajE9Q8X/go+OAIrfw==",
   "success": true,
-  "projectFilePath": "C:\\src\\Metaverse.Bot\\Metaverse.Bot\\Metaverse.Bot.csproj",
+  "projectFilePath": "C:\\src\\Metaverse.Bot\\Metaverse.Core\\Metaverse.Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\aqshe\\.nuget\\packages\\common.logging.core\\3.4.1\\common.logging.core.3.4.1.nupkg.sha512",
     "C:\\Users\\aqshe\\.nuget\\packages\\discord.net\\2.2.0\\discord.net.2.2.0.nupkg.sha512",

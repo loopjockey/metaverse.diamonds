@@ -6,10 +6,9 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v3.1": {
-      "Metaverse.Bot/1.0.0": {
+      "Metaverse.Core/1.0.0": {
         "dependencies": {
           "Discord.Net": "2.2.0",
-          "Metaverse.Core": "1.0.0",
           "Microsoft.Azure.Cosmos.Table": "1.0.8",
           "Microsoft.Extensions.DependencyInjection": "3.1.0",
           "Nethereum.Signer": "3.8.0",
@@ -18,7 +17,7 @@
           "Newtonsoft.Json": "12.0.3"
         },
         "runtime": {
-          "Metaverse.Bot.dll": {}
+          "Metaverse.Core.dll": {}
         }
       },
       "Common.Logging.Core/3.4.1": {
@@ -1401,25 +1400,11 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.0.11"
         }
-      },
-      "Metaverse.Core/1.0.0": {
-        "dependencies": {
-          "Discord.Net": "2.2.0",
-          "Microsoft.Azure.Cosmos.Table": "1.0.8",
-          "Microsoft.Extensions.DependencyInjection": "3.1.0",
-          "Nethereum.Signer": "3.8.0",
-          "Nethereum.StandardNonFungibleTokenERC721": "3.8.0",
-          "Nethereum.Web3": "3.8.0",
-          "Newtonsoft.Json": "12.0.3"
-        },
-        "runtime": {
-          "Metaverse.Core.dll": {}
-        }
       }
     }
   },
   "libraries": {
-    "Metaverse.Bot/1.0.0": {
+    "Metaverse.Core/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -2312,11 +2297,6 @@
       "sha512": "sha512-Mk2mKmPi0nWaoiYeotq1dgeNK1fqWh61+EK+w4Wu8SWuTYLzpUnschb59bJtGywaPq7SmTuPf44wrXRwbIrukg==",
       "path": "system.xml.xdocument/4.0.11",
       "hashPath": "system.xml.xdocument.4.0.11.nupkg.sha512"
-    },
-    "Metaverse.Core/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
     }
   }
 }

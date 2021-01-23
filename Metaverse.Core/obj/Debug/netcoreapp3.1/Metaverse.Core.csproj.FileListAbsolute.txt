@@ -1,0 +1,9 @@
+C:\src\Metaverse.Bot\Metaverse.Core\bin\Debug\netcoreapp3.1\Metaverse.Core.deps.json
+C:\src\Metaverse.Bot\Metaverse.Core\bin\Debug\netcoreapp3.1\Metaverse.Core.dll
+C:\src\Metaverse.Bot\Metaverse.Core\bin\Debug\netcoreapp3.1\Metaverse.Core.pdb
+C:\src\Metaverse.Bot\Metaverse.Core\obj\Debug\netcoreapp3.1\Metaverse.Core.csprojAssemblyReference.cache
+C:\src\Metaverse.Bot\Metaverse.Core\obj\Debug\netcoreapp3.1\Metaverse.Core.AssemblyInfoInputs.cache
+C:\src\Metaverse.Bot\Metaverse.Core\obj\Debug\netcoreapp3.1\Metaverse.Core.AssemblyInfo.cs
+C:\src\Metaverse.Bot\Metaverse.Core\obj\Debug\netcoreapp3.1\Metaverse.Core.csproj.CoreCompileInputs.cache
+C:\src\Metaverse.Bot\Metaverse.Core\obj\Debug\netcoreapp3.1\Metaverse.Core.dll
+C:\src\Metaverse.Bot\Metaverse.Core\obj\Debug\netcoreapp3.1\Metaverse.Core.pdb

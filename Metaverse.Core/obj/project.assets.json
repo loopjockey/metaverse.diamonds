@@ -2142,25 +2142,6 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
-      },
-      "Metaverse.Core/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v3.1",
-        "dependencies": {
-          "Discord.Net": "2.2.0",
-          "Microsoft.Azure.Cosmos.Table": "1.0.8",
-          "Microsoft.Extensions.DependencyInjection": "3.1.0",
-          "Nethereum.Signer": "3.8.0",
-          "Nethereum.StandardNonFungibleTokenERC721": "3.8.0",
-          "Nethereum.Web3": "3.8.0",
-          "Newtonsoft.Json": "12.0.3"
-        },
-        "compile": {
-          "bin/placeholder/Metaverse.Core.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/Metaverse.Core.dll": {}
-        }
       }
     }
   },
@@ -6868,17 +6849,11 @@
         "system.xml.xdocument.4.0.11.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
-    },
-    "Metaverse.Core/1.0.0": {
-      "type": "project",
-      "path": "../Metaverse.Core/Metaverse.Core.csproj",
-      "msbuildProject": "../Metaverse.Core/Metaverse.Core.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
       "Discord.Net >= 2.2.0",
-      "Metaverse.Core >= 1.0.0",
       "Microsoft.Azure.Cosmos.Table >= 1.0.8",
       "Microsoft.Extensions.DependencyInjection >= 3.1.0",
       "Nethereum.Signer >= 3.8.0",
@@ -6895,11 +6870,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\src\\Metaverse.Bot\\Metaverse.Bot\\Metaverse.Bot.csproj",
-      "projectName": "Metaverse.Bot",
-      "projectPath": "C:\\src\\Metaverse.Bot\\Metaverse.Bot\\Metaverse.Bot.csproj",
+      "projectUniqueName": "C:\\src\\Metaverse.Bot\\Metaverse.Core\\Metaverse.Core.csproj",
+      "projectName": "Metaverse.Core",
+      "projectPath": "C:\\src\\Metaverse.Bot\\Metaverse.Core\\Metaverse.Core.csproj",
       "packagesPath": "C:\\Users\\aqshe\\.nuget\\packages\\",
-      "outputPath": "C:\\src\\Metaverse.Bot\\Metaverse.Bot\\obj\\",
+      "outputPath": "C:\\src\\Metaverse.Bot\\Metaverse.Core\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
@@ -6922,11 +6897,7 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
-          "projectReferences": {
-            "C:\\src\\Metaverse.Bot\\Metaverse.Core\\Metaverse.Core.csproj": {
-              "projectPath": "C:\\src\\Metaverse.Bot\\Metaverse.Core\\Metaverse.Core.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {

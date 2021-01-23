@@ -91,14 +91,9 @@
             >
             <v-stepper-content step="4">
               Please share the following in a direct message with the bot
-              <code>Metaverse Diamonds#7589</code>. Alternatively if you are OK
-              with other server participants being able to work out what your address is please
-              share the following in any channel within the server.
+              <code>Metaverse Diamonds#7589</code>.
               <v-textarea :value="discordCommand" filled class="pt-4" rows="7" ref="discordCommandText" @click="selectAllText">
               </v-textarea>
-              <!--<v-card  class="mb-2 mt-4 pa-3">
-                {{ discordCommand }}
-              </v-card>-->
               <v-btn color="primary" @click="copyText()">
                 <v-icon left>content_copy</v-icon>Copy</v-btn
               >

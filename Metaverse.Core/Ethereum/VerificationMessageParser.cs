@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Numerics;
 
-namespace Metaverse.Bot.Ethereum
+namespace Metaverse.Core.Ethereum
 {
     public static class VerificationMessageParser
     {
@@ -10,10 +10,10 @@ namespace Metaverse.Bot.Ethereum
         private static readonly string[] SupportedVersions = new[] { "v1" };
         private static readonly string[] SupportedActions = new[] { "use_nft" };
 
-        public static bool TryParse(string verificationMessage, out VerificationMessageModel messageModel) 
+        public static bool TryParse(string verificationMessage, out VerificationMessageModel messageModel)
         {
             var messageParts = verificationMessage.Split('|');
-            if (messageParts.Length != 6) 
+            if (messageParts.Length != 8)
             {
                 messageModel = null;
                 return false;
@@ -24,9 +24,13 @@ namespace Metaverse.Bot.Ethereum
             var action = messageParts[2];
             var path = messageParts[3];
             var guildId = messageParts[4];
-            var ticks = messageParts[5];
+            var userId = messageParts[5];
+            var roleId = messageParts[6];
+            var ticks = messageParts[7];
 
             if (!ulong.TryParse(guildId, out var gGuildId) ||
+                !ulong.TryParse(userId, out var gUserId) ||
+                !ulong.TryParse(roleId, out var gRoleId) ||
                 !SupportedDomains.Contains(domain) ||
                 !SupportedVersions.Contains(version) ||
                 !SupportedActions.Contains(action) ||
@@ -44,26 +48,28 @@ namespace Metaverse.Bot.Ethereum
                 Action = action,
                 Path = path,
                 GuildId = gGuildId,
+                UserId = gUserId,
+                RoleId = gRoleId,
                 OriginalTicks = jsTicks,
                 Timestamp = signatureDate
             };
             return true;
         }
 
-        public static bool TryParsePath(string path, out (string creatorAddress, BigInteger tokenId) erc721Token) 
+        public static bool TryParsePath(string path, out (string creatorAddress, BigInteger tokenId) erc721Token)
         {
-            if (string.IsNullOrWhiteSpace(path)) 
+            if (string.IsNullOrWhiteSpace(path))
             {
                 erc721Token = default;
                 return false;
             }
             var parts = path.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length != 2) 
+            if (parts.Length != 2)
             {
                 erc721Token = default;
                 return false;
             }
-            if (!BigInteger.TryParse(parts[1], out var tokenId)) 
+            if (!BigInteger.TryParse(parts[1], out var tokenId))
             {
                 erc721Token = default;
                 return false;
@@ -88,13 +94,15 @@ namespace Metaverse.Bot.Ethereum
         }
     }
 
-    public class VerificationMessageModel 
-    { 
+    public class VerificationMessageModel
+    {
         public string Domain { get; set; }
         public string Version { get; set; }
         public string Action { get; set; }
         public string Path { get; set; }
         public ulong GuildId { get; set; }
+        public ulong UserId { get; set; }
+        public ulong RoleId { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public long OriginalTicks { get; set; }
     }

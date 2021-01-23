@@ -1,6 +1,6 @@
 ﻿using Nethereum.Signer;
 
-namespace Metaverse.Bot.Ethereum
+namespace Metaverse.Core.Ethereum
 {
     public static class SignatureValidator
     {

@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
@@ -13,10 +12,6 @@
     <PackageReference Include="Nethereum.StandardNonFungibleTokenERC721" Version="3.8.0" />
     <PackageReference Include="Nethereum.Web3" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Metaverse.Core\Metaverse.Core.csproj" />
   </ItemGroup>
 
 </Project>
