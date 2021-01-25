@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Metaverse.Bot.Data
+namespace Metaverse.Functions.Data
 {
     public interface ITableStorageClient
     {

@@ -1,11 +1,8 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Metaverse.Bot.Data;
 using Metaverse.Bot.Discord;
-using Metaverse.Bot.Ethereum;
 using Microsoft.Extensions.DependencyInjection;
-using Nethereum.Web3;
 using System;
 using System.Net.Http;
 using System.Threading;
@@ -54,9 +51,6 @@ namespace Metaverse.Bot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<HttpClient>()
-                .AddSingleton(new Web3("https://mainnet.infura.io/v3/de5f71e6f3704e09bdb97cbdcca981f9"))
-                .AddSingleton<ERC721Client>()
-                .AddSingleton(new TableStorageClient("UseDevelopmentStorage=true"))
                 .BuildServiceProvider();
         }
     }

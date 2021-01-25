@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metaverse.Bot", "Metaverse.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metaverse.Functions", "Metaverse.Functions\Metaverse.Functions.csproj", "{2A923A38-78CE-4386-B756-2A9B32D6DDFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metaverse.Core", "Metaverse.Core\Metaverse.Core.csproj", "{F783FF52-13B6-4E90-A7B0-7E39F670B0E1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{2A923A38-78CE-4386-B756-2A9B32D6DDFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A923A38-78CE-4386-B756-2A9B32D6DDFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A923A38-78CE-4386-B756-2A9B32D6DDFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F783FF52-13B6-4E90-A7B0-7E39F670B0E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F783FF52-13B6-4E90-A7B0-7E39F670B0E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F783FF52-13B6-4E90-A7B0-7E39F670B0E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F783FF52-13B6-4E90-A7B0-7E39F670B0E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,7 +2,7 @@
 using System;
 using System.Numerics;
 
-namespace Metaverse.Bot.Data
+namespace Metaverse.Functions.Data
 {
     public class TokenRewardEntity : TableEntity
     {
@@ -32,13 +32,13 @@ namespace Metaverse.Bot.Data
         [IgnoreProperty] public BigInteger? MaximumTokenId => string.IsNullOrWhiteSpace(MaximumTokenId_S) ? (BigInteger?)null : BigInteger.Parse(MaximumTokenId_S);
 
         public bool IsAllTokens { get; set; } = false;
-        
+
         public DateTimeOffset RuleCreatedDate { get; set; }
         public string CreatorAddress { get; set; }
 
         public const string TableName = "TokenRewards";
 
-        public bool AppliesTo(string creatorAddress, BigInteger tokenId) 
+        public bool AppliesTo(string creatorAddress, BigInteger tokenId)
         {
             if (creatorAddress != CreatorAddress) return false;
             if (IsAllTokens) return true;
@@ -112,14 +112,14 @@ namespace Metaverse.Bot.Data
                 return _rowKeyString.ToString();
             }
 
-            public static bool TryParse(string tokenReferencePart, string creatorAddress, DateTimeOffset ruleCreatedDate, out Row row) 
+            public static bool TryParse(string tokenReferencePart, string creatorAddress, DateTimeOffset ruleCreatedDate, out Row row)
             {
-                if (tokenReferencePart == "*") 
+                if (tokenReferencePart == "*")
                 {
                     row = new Row(creatorAddress, ruleCreatedDate);
                     return true;
                 }
-                if (BigInteger.TryParse(tokenReferencePart, out var tokenId)) 
+                if (BigInteger.TryParse(tokenReferencePart, out var tokenId))
                 {
                     row = new Row(creatorAddress, tokenId, ruleCreatedDate);
                     return true;

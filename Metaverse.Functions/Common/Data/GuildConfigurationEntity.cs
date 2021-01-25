@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 
-namespace Metaverse.Bot.Data
+namespace Metaverse.Functions.Data
 {
     public class GuildConfigurationEntity : TableEntity
     {

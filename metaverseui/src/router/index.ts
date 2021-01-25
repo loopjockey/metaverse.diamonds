@@ -1,20 +1,35 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "@/views/Home.vue";
-import Guild from "@/views/Guild.vue";
+import Api from '@/lib/Api.ts';
+import LoginCallback from "@/views/LoginCallback.vue";
+import Passthrough from "@/views/Passthrough.vue";
 
 Vue.use(VueRouter);
+
+const guardDiscordAuthenticated = (to, from, next) => {
+  if (!Api.isDiscordAuthenticated()) {
+    Api.initiateDiscordLogin();
+  }
+  else {
+    next();
+  }
+}
 
 const routes: Array<RouteConfig> = [
   {
     path: "/",
     name: "Home",
-    component: Home
+    component: Home,
+    beforeEnter: guardDiscordAuthenticated,
+    children: [
+      { path: ":guildId?", component: Passthrough }
+    ]
   },
   {
-    path: "/g/:guildId",
-    name: "Guild",
-    component: Guild
+    path: "/login/callback",
+    name: "LoginCallback",
+    component: LoginCallback
   }
 ];
 

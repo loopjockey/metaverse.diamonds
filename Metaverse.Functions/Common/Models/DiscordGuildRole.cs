@@ -6,11 +6,11 @@
 
         public DiscordGuildRole(ulong roleId, string roleName) 
         {
-            Id = roleId;
+            Id = roleId.ToString();
             Name = roleName;
         }
 
-        public ulong Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
     }
 }
