@@ -2,6 +2,7 @@
   <v-skeleton-loader
     :loading="loading"
     type="list-item-avatar@6"
+    :class="loading ? 'pa-2' :null"
   >
     <v-list subheader>
       <v-subheader>Select Guild</v-subheader>

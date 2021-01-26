@@ -20,6 +20,20 @@ export class AuthenticationData {
         if (val) localStorage.setItem('x-md-accesstoken', val);
         else localStorage.removeItem('x-md-accesstoken');
     }
+    get web3Auth(): string | null {
+        return localStorage.getItem('x-md-web3auth');
+    }
+    set web3Auth(val: string | null) {
+        if (val) localStorage.setItem('x-md-web3auth', val);
+        else localStorage.removeItem('x-md-web3auth');
+    }
+    get currentAddress() : string | null {
+        return localStorage.getItem('x-md-ethaddr');
+    }
+    set currentAddress(val: string | null) {
+        if (val) localStorage.setItem('x-md-ethaddr', val);
+        else localStorage.removeItem('x-md-ethaddr');
+    }
 }
 
 export class Api {
@@ -32,6 +46,9 @@ export class Api {
         if (!expiryTime) return;
         if (expiryTime < moment()) return;
         axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        const web3Auth = this.authData.web3Auth;
+        if (!web3Auth) return;
+        axios.defaults.headers.common['X-Web3-Auth'] = `${web3Auth}:${expiryTime.toDate().getTime()}`;
     }
 
     public create() {
@@ -53,6 +70,7 @@ export class Api {
     }
 
     public applyEthereumCredentials(signature: string) {
+        this.authData.web3Auth = signature;
         axios.defaults.headers.common['X-Web3-Auth'] = `${signature}:${this.authData.expiryTime?.toDate().getTime()}`;
     }
 

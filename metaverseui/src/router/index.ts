@@ -19,11 +19,20 @@ const guardDiscordAuthenticated = (to, from, next) => {
 const routes: Array<RouteConfig> = [
   {
     path: "/",
-    name: "Home",
     component: Home,
     beforeEnter: guardDiscordAuthenticated,
     children: [
-      { path: ":guildId?", component: Passthrough }
+      {
+        path: "",
+        component: Passthrough,
+        name: "GuildList",
+      },
+      {
+        path: ":guildId?", 
+        component: Passthrough,
+        beforeEnter: guardDiscordAuthenticated,
+        name: "SelectedGuild"
+      }
     ]
   },
   {

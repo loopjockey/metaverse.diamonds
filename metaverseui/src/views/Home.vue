@@ -1,60 +1,100 @@
 <template>
-  <v-dialog
-    :value="true"
-    width="600"
-    persistent
-    retain-focus
-    hide-overlay
-    no-click-animation
-    scrollable
-  >
-    <v-card :loading="$wait.is('getMyDiscordGuilds')" class="mx-auto">
-      <v-toolbar flat extended>
-        <v-avatar class="mr-3">
-          <v-img :src="user.url"></v-img>
-        </v-avatar>
-        <v-toolbar-title>{{ user.name }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn @click="logout" text>Logout</v-btn>
-        <template #extension>
-          <v-tabs>
-            <v-tab>Guilds</v-tab>
-          </v-tabs>
-        </template>
-      </v-toolbar>
-
-      <v-card-text class="pa-0">
-        <guild-list
-          v-model="selectedGuild"
-          :items="guilds"
-          :loading="$wait.is('getMyDiscordGuilds')"
-        ></guild-list>
-      </v-card-text>
-
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
-          color="primary"
-          outlined
-          large
-          :disabled="!selectedGuild"
-          @click="$router.push(`/${selectedGuild ? selectedGuild.id : ''}`)"
+  <div>
+    <v-dialog
+      :value="true"
+      width="600"
+      persistent
+      no-click-animation
+      scrollable
+      :fullscreen="$vuetify.breakpoint.xsOnly"
+    >
+      <v-card
+        :loading="$wait.is('getMyDiscordGuilds')"
+        style="position: relative"
+        id="mainCard"
+      >
+        <v-card-title
+          class="primary--text"
+          style="font-family: 'Bungee', cursive"
+          >metaverse.diamonds</v-card-title
         >
-          <v-icon left>done</v-icon>
-          Next</v-btn
-        >
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        <v-card-subtitle> The glue between Ξ NFTs and guilds. </v-card-subtitle>
+        <v-toolbar flat extended>
+          <v-avatar class="mr-4" color="primary">
+            <span v-if="!user" class="white--text headline">...</span>
+            <v-img v-else :src="user.url"></v-img>
+          </v-avatar>
+          <v-toolbar-title>{{
+            user ? user.name : "loading#123..."
+          }}          
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn text>
+            <v-icon left>account_balance_wallet</v-icon>
+            {{ address ? address.substring(0, 10) + "..." : "connect" }}
+          </v-btn>
+          <template #extension>
+            <v-tabs>
+              <v-tab>Guilds</v-tab>
+            </v-tabs>
+          </template>
+        </v-toolbar>
+
+        <v-card-text class="pa-0">
+          <fragment v-if="$route.name === 'GuildList'">
+            <guild-list
+              v-model="selectedGuild"
+              :items="guilds"
+              :loading="$wait.is('getMyDiscordGuilds')"
+            ></guild-list>
+          </fragment>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn
+            v-if="$route.name === 'SelectedGuild'"
+            outlined
+            large
+            @click="$router.push('/')"
+          >
+            <v-icon left>keyboard_backspace</v-icon>
+            Back
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            v-if="$route.name === 'GuildList'"
+            color="primary"
+            outlined
+            large
+            :disabled="!selectedGuild"
+            @click="$router.push(`/${selectedGuild ? selectedGuild.id : ''}`)"
+          >
+            <v-icon left>done</v-icon>
+            {{
+              selectedGuild
+                ? `Go to ${
+                    selectedGuild.name.length > 15
+                      ? selectedGuild.name.substring(0, 15) + "..."
+                      : selectedGuild.name
+                  }`
+                : "Select guild"
+            }}</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <wallet-check-bottom-sheet v-model="address" :user="user"></wallet-check-bottom-sheet>
+  </div>
 </template>
 
 <script>
 import Api from "@/lib/Api.ts";
 import { waitFor } from "vue-wait";
 import GuildList from "@/components/Domain.Guilds/GuildList.vue";
+import WalletCheckBottomSheet from "@/components/Domain.Ethereum/WalletCheckBottomSheet.vue";
 export default {
-  components: { GuildList },
+  components: { GuildList, WalletCheckBottomSheet },
   data() {
     return {
       isDiscordAuthenticated: Api.isDiscordAuthenticated(),
@@ -63,7 +103,8 @@ export default {
       routeGuildId: null,
       guilds: [],
       rewards: [],
-      user: {},
+      user: null,
+      address: Api.authData.currentAddress,
     };
   },
   created() {
@@ -76,8 +117,8 @@ export default {
         if (!val) return;
       },
       immediate: true,
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     getMyDiscordGuilds: waitFor("getMyDiscordGuilds", async function () {
@@ -90,26 +131,7 @@ export default {
       }));
       this.user = guildsResponse.user;
     }),
-    async startNextStep() {
-      /*if (!this.$eth.isConnected) {
-        this.$eth.connect();
-      }
-      await this.getEthereumSignature();
-      await this.getGuildRewards(this.selectedGuildId);*/
-    },
-    getEthereumSignature: waitFor("getEthereumSignature", async function () {
-      const web3 = this.$eth.web3;
-      const accounts = await web3.eth.getAccounts();
-      const defaultAccount = accounts[0];
-      const user = this.user.name;
-      const expiry = Api.authData.expiryTime?.toDate().getTime();
-      const message = `I agree to link this user ${user} to my current address. Expires: ${expiry}`;
-      const signedMessage = await web3.eth.personal.sign(
-        message,
-        defaultAccount
-      );
-      Api.applyEthereumCredentials(signedMessage);
-    }),
+    
     getGuildRewards: waitFor("getGuildRewards", async function (id) {
       this.rewards = await Api.create()
         .get(`guilds/${id}/rewards`)
