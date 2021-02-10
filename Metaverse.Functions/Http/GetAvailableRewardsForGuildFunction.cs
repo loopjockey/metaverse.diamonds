@@ -16,6 +16,7 @@ using System;
 using Nethereum.Signer;
 using Metaverse.Functions.Common.Configuration;
 using Metaverse.Functions.Models;
+using Discord.Net;
 
 namespace Metaverse.Functions.Http
 {
@@ -59,23 +60,37 @@ namespace Metaverse.Functions.Http
                 var addressOfSigner = _ethereumMessageSigner.EncodeUTF8AndEcRecover(message, signature);
                 var tokenRewards = _tableStorageClient.GetTokenRewardDefinitions(pGuildId);
                 var uniqueCreatorAddresses = tokenRewards.Select(tr => tr.CreatorAddress).Distinct().ToArray();
-                var getGuildTask = _discordClient.GetGuildAsync(pGuildId);
-                var getAddressTokensTask = _eip721GraphClient.GetAddressTokensAsync(addressOfSigner);
-                var getGuildUserTask = _discordClient.GetGuildUserAsync(pGuildId, userId);
-                
-                await Task.WhenAll(getGuildTask, getGuildUserTask, getAddressTokensTask);
-
-                var allRoles = getGuildTask.Result.Roles.Select(r => new DiscordGuildRole(r.Id, r.Name)).ToArray();
-                var applicableRoles = new Dictionary<ulong, (string creatorAddress, BigInteger tokenId)>();
-                foreach (var reward in tokenRewards)
+                try
                 {
-                    if (applicableRoles.ContainsKey(reward.TargetRoleId)) continue;
-                    var applicableToken = getAddressTokensTask.Result.FirstOrDefault(t => reward.AppliesTo(t.address, t.tokenId));
-                    if (applicableToken == default) continue;
-                    applicableRoles[reward.TargetRoleId] = applicableToken;
+                    var getGuildTask = _discordClient.GetGuildAsync(pGuildId);
+                    var getAddressTokensTask = _eip721GraphClient.GetAddressTokensAsync(addressOfSigner);
+                    var getGuildUserTask = _discordClient.GetGuildUserAsync(pGuildId, userId);
+
+                    await Task.WhenAll(getGuildTask, getGuildUserTask, getAddressTokensTask);
+
+                    var allRoles =
+                        from r in getGuildTask.Result.Roles.OrderByDescending(r => r.Position)
+                        let isAdmin = r.Permissions.Administrator
+                        let colour = $"rgb({(int)r.Color.R},{(int)r.Color.G},{(int)r.Color.B})"
+                        select new DiscordGuildRole(r.Id, r.Name, colour, isAdmin);
+
+                    var applicableRoles = new Dictionary<string, (string creatorAddress, BigInteger tokenId)>();
+                    foreach (var reward in tokenRewards)
+                    {
+                        if (applicableRoles.ContainsKey(reward.TargetRoleId.ToString())) continue;
+                        var applicableToken = getAddressTokensTask.Result.FirstOrDefault(t => reward.AppliesTo(t.address, t.tokenId));
+                        if (applicableToken == default) continue;
+                        applicableRoles[reward.TargetRoleId.ToString()] = applicableToken;
+                    }
+                    var currentRoleIds = getGuildUserTask.Result.RoleIds.Select(r => r.ToString()).ToArray();
+                    return new OkObjectResult(new { applicableRoles, allRoles, currentRoleIds });
                 }
-                var currentRoleIds = getGuildUserTask.Result.RoleIds.ToArray();
-                return new OkObjectResult(new { applicableRoles, allRoles, currentRoleIds });
+                catch (HttpException e)
+                {
+                    if (e.DiscordCode == 50001)
+                        return new NotFoundResult();
+                    throw;
+                }
             }
             
         }

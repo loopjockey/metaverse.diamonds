@@ -9,8 +9,8 @@
       <fragment v-for="(guild, i) in items" :key="i">
         <v-list-item @click="$emit('input', guild)">
           <v-list-item-avatar>
-            <v-avatar>
-              <v-img :src="guild.avatarUrl"></v-img>
+            <v-avatar size="42">
+              <v-img :src="guild.avatarUrl || `https://ui-avatars.com/api/?background=ff7143&color=fff&name=${guild.name}`"></v-img>
             </v-avatar>
           </v-list-item-avatar>
           <v-list-item-content>

@@ -1,5 +1,5 @@
 <template>
-    <section class="pb-5">
+    <section class="pb-5 px-8">
         <p class="text-center mb-0">
             <v-icon class="empty-state">{{icon}}</v-icon>
         </p>

@@ -6,39 +6,18 @@
       persistent
       no-click-animation
       scrollable
-      :fullscreen="$vuetify.breakpoint.xsOnly"
     >
       <v-card
         :loading="$wait.is('getMyDiscordGuilds')"
         style="position: relative"
+        outlined
         id="mainCard"
       >
-        <v-card-title
-          class="primary--text"
-          style="font-family: 'Bungee', cursive"
-          >metaverse.diamonds</v-card-title
-        >
-        <v-card-subtitle> The glue between Ξ NFTs and guilds. </v-card-subtitle>
-        <v-toolbar flat extended>
-          <v-avatar class="mr-4" color="primary">
-            <span v-if="!user" class="white--text headline">...</span>
-            <v-img v-else :src="user.url"></v-img>
-          </v-avatar>
-          <v-toolbar-title>{{
-            user ? user.name : "loading#123..."
-          }}          
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn text>
-            <v-icon left>account_balance_wallet</v-icon>
-            {{ address ? address.substring(0, 10) + "..." : "connect" }}
-          </v-btn>
-          <template #extension>
-            <v-tabs>
-              <v-tab>Guilds</v-tab>
-            </v-tabs>
-          </template>
-        </v-toolbar>
+        <banner-card-title></banner-card-title>
+        <authentication-toolbar
+          :address="address"
+          :user="user"
+        ></authentication-toolbar>
 
         <v-card-text class="pa-0">
           <fragment v-if="$route.name === 'GuildList'">
@@ -48,19 +27,33 @@
               :loading="$wait.is('getMyDiscordGuilds')"
             ></guild-list>
           </fragment>
+          <fragment v-if="$route.name === 'SelectedGuild'">
+            <guild-header-list
+              :guild="selectedGuild"
+              :isOwner="selectedGuild"
+              :loading="$wait.is('getMyDiscordGuilds')"
+            >
+              <v-btn v-if="!selectedGuild.shopUrl" text outlined>Go to shop</v-btn>
+            </guild-header-list>
+            <guild-disconnected-state
+              v-if="!serverConnected"
+            ></guild-disconnected-state>
+            <role-list
+              v-else
+              v-model="selectedRole"
+              :items="roles"
+              :loading="$wait.is('getGuildRewards')"
+            >
+            </role-list>
+          </fragment>
         </v-card-text>
 
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn
+          <back-button
             v-if="$route.name === 'SelectedGuild'"
-            outlined
-            large
             @click="$router.push('/')"
-          >
-            <v-icon left>keyboard_backspace</v-icon>
-            Back
-          </v-btn>
+          ></back-button>
           <v-spacer></v-spacer>
           <v-btn
             v-if="$route.name === 'GuildList'"
@@ -84,25 +77,47 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <wallet-check-bottom-sheet v-model="address" :user="user"></wallet-check-bottom-sheet>
+    <wallet-check-bottom-sheet
+      v-model="address"
+      :user="user"
+    ></wallet-check-bottom-sheet>
   </div>
 </template>
 
 <script>
 import Api from "@/lib/Api.ts";
 import { waitFor } from "vue-wait";
-import GuildList from "@/components/Domain.Guilds/GuildList.vue";
+import BannerCardTitle from "@/components/Common/BannerCardTitle.vue";
+import BackButton from "@/components/Common/BackButton.vue";
 import WalletCheckBottomSheet from "@/components/Domain.Ethereum/WalletCheckBottomSheet.vue";
+import AuthenticationToolbar from "@/components/Common/AuthenticationToolbar.vue";
+import GuildList from "@/components/Domain.Guilds/GuildList.vue";
+import GuildHeaderList from "@/components/Domain.Guilds/GuildHeaderList.vue";
+import GuildDisconnectedState from "@/components/Domain.Guilds/GuildDisconnectedState.vue";
+import RoleList, {
+  convertRewardsToRoles,
+} from "@/components/Domain.Roles/RoleList.vue";
 export default {
-  components: { GuildList, WalletCheckBottomSheet },
+  components: {
+    BackButton,
+    BannerCardTitle,
+    AuthenticationToolbar,
+    WalletCheckBottomSheet,
+    RoleList,
+    GuildList,
+    GuildHeaderList,
+    GuildDisconnectedState,
+  },
   data() {
     return {
       isDiscordAuthenticated: Api.isDiscordAuthenticated(),
       loading: false,
+      selectedRole: null,
       selectedGuild: null,
       routeGuildId: null,
       guilds: [],
-      rewards: [],
+      roles: [],
+      serverConnected: true,
       user: null,
       address: Api.authData.currentAddress,
     };
@@ -115,6 +130,9 @@ export default {
     $route: {
       handler(val) {
         if (!val) return;
+        const guildId = val.params.guildId;
+        if (!guildId) return;
+        this.getGuildRewards(guildId);
       },
       immediate: true,
       deep: true,
@@ -130,17 +148,20 @@ export default {
         selected: false,
       }));
       this.user = guildsResponse.user;
+      this.selectedGuild = this.guilds.find(
+        (g) => g.id === this.$route.params.guildId
+      );
     }),
-    
     getGuildRewards: waitFor("getGuildRewards", async function (id) {
-      this.rewards = await Api.create()
-        .get(`guilds/${id}/rewards`)
-        .then((r) => r.data);
+      try {
+        this.serverConnected = true;
+        this.roles = await Api.create()
+          .get(`guilds/${id}/rewards`)
+          .then((r) => convertRewardsToRoles(r.data));
+      } catch (err) {
+        if (err.response.status === 404) this.serverConnected = false;
+      }
     }),
-    logout() {
-      localStorage.clear();
-      Api.initiateDiscordLogin();
-    },
   },
 };
 </script>
