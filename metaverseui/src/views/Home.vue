@@ -86,6 +86,7 @@ import GuildDisconnectedState from "@/components/Domain.Guilds/GuildDisconnected
 import RoleList, {
   convertRewardsToRoles,
 } from "@/components/Domain.Roles/RoleList.vue";
+import { toastError, toastSuccess } from "@/components/Common/Toast.vue";
 export default {
   components: {
     BackButton,
@@ -130,17 +131,30 @@ export default {
   },
   methods: {
     getMyDiscordGuilds: waitFor("getMyDiscordGuilds", async function () {
-      const guildsResponse = await Api.create()
-        .get("guilds")
-        .then((r) => r.data);
-      this.guilds = guildsResponse.guilds.map((g) => ({
-        ...g,
-        selected: false,
-      }));
-      this.user = guildsResponse.user;
-      this.selectedGuild = this.guilds.find(
-        (g) => g.id === this.$route.params.guildId
-      );
+      try {
+        const guildsResponse = await Api.create()
+          .get("guilds")
+          .then((r) => r.data);
+        this.guilds = guildsResponse.guilds.map((g) => ({
+          ...g,
+          selected: false,
+        }));
+        this.user = guildsResponse.user;
+        this.selectedGuild = this.guilds.find(
+          (g) => g.id === this.$route.params.guildId
+        );
+      } catch (err) {
+        if (
+          err.response &&
+          err.response.data &&
+          typeof err.response.data == "string"
+        )
+          toastError(err.response.data);
+        else
+          toastError(
+            "There was an unexpected error encountered while loading your guilds."
+          );
+      }
     }),
     getGuildRewards: waitFor("getGuildRewards", async function (id) {
       try {
@@ -151,7 +165,18 @@ export default {
         this.roles = convertRewardsToRoles(rewardsResponse);
         this.shopUrl = rewardsResponse.shopUrl;
       } catch (err) {
-        if (err.response.status === 404) this.serverConnected = false;
+        if (err.response && err.response.status === 404)
+          this.serverConnected = false;
+        else if (
+          err.response &&
+          err.response.data &&
+          typeof err.response.data == "string"
+        )
+          toastError(err.response.data);
+        else
+          toastError(
+            "There was an unexpected error encountered while loading your available rewards for this server."
+          );
       }
     }),
     async tryClaimReward(reward) {
@@ -162,6 +187,20 @@ export default {
           `guilds/${guildId}/rewards/${reward.id}/apply/${reward.availableRoleToken}`
         );
         reward.hasRole = true;
+        toastSuccess(
+          `You should have access to the role @${reward.name} shortly!`
+        );
+      } catch (err) {
+        if (
+          err.response &&
+          err.response.data &&
+          typeof err.response.data == "string"
+        )
+          toastError(err.response.data);
+        else
+          toastError(
+            "There was an unexpected error encountered while claiming this reward."
+          );
       } finally {
         this.$wait.end(`claimingReward-${reward.id}`);
       }

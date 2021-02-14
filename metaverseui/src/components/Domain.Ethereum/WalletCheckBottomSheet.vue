@@ -52,17 +52,13 @@
               Finally please review the terms and conditions and continue if you
               accept them:
             </p>
-            <v-checkbox
-              v-model="acceptTermsAndConditions"
-              label="Accept"
-            ></v-checkbox>
             <v-btn
               color="primary"
               x-large
               @click="walletCheck = false"
               :disabled="!acceptTermsAndConditions"
             >
-              <v-icon left>done</v-icon> Accept
+              <v-icon left>done</v-icon> Accept Terms and Conditions
             </v-btn>
           </empty-state>
         </v-stepper-content>
@@ -82,7 +78,7 @@ export default {
     return {
       walletCheck: false,
       currentStep: 1,
-      acceptTermsAndConditions: false,
+      acceptTermsAndConditions: true,
     };
   },
   created() {
@@ -97,7 +93,6 @@ export default {
     getEthereumSignature: waitFor("getEthereumSignature", async function () {
       const web3 = this.$eth.web3;
       const accounts = await web3.eth.getAccounts();
-      debugger;
       const account = accounts[0];
       const user = this.user.name;
       const expiry = Api.authData.expiryTime?.toDate().getTime();

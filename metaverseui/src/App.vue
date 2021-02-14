@@ -50,7 +50,7 @@ export default Vue.extend({
 
 .pretty-bottom-logo::before {
   content: "";
-  background-image: url(https://metaversediamondspublic.blob.core.windows.net/public/background_2.jpg) !important;
+  background-image: url(https://metaversediamondspublic.blob.core.windows.net/public/background_3.jpg) !important;
   background-size: cover;
   background-position: center;
   position: absolute;
@@ -59,5 +59,6 @@ export default Vue.extend({
   bottom: 0px;
   left: 0px;
   opacity: 0.3;
+  transition: background 300ms ease-in 200ms;
 }
 </style>
