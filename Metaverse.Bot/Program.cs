@@ -7,6 +7,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Storage.Queues;
 
 namespace Metaverse.Bot
 {
@@ -19,19 +20,21 @@ namespace Metaverse.Bot
             using (var services = ConfigureServices())
             {
                 var client = services.GetRequiredService<DiscordSocketClient>();
+                client.Log += LogAsync;
+
+                var commandService = services.GetRequiredService<CommandService>();
+                commandService.Log += LogAsync;
 
                 client.JoinedGuild += (g) => client
                     .GetGuild(g.Id)
                     .GetTextChannel(g.DefaultChannel.Id)
-                    .SendMessageAsync("Hey there! Please go to https://setup.metaverse.diamonds to find comprehensive setup instructions.");
-
-                client.Log += LogAsync;
-                services.GetRequiredService<CommandService>().Log += LogAsync;
+                    .SendMessageAsync("Hey there! Please go to https://setup.metaverse.diamonds to find comprehensive setup instructions for your guild.");
 
                 await client.LoginAsync(TokenType.Bot, "NzkwNTU5MTIwNjAzODczMzIw.X-CXjg.RxQemVh7O3Y4-tiVVZ_twsmyei0");
                 await client.StartAsync();
 
-                await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+                var commandHandlingService = services.GetRequiredService<CommandHandlingService>();
+                await commandHandlingService.InitializeAsync();
 
                 await Task.Delay(Timeout.Infinite);
             }
@@ -51,6 +54,7 @@ namespace Metaverse.Bot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<HttpClient>()
+                .AddSingleton<Func<string, QueueClient>>((queueName) => new QueueClient("UseDevelopmentStorage=true", queueName))
                 .BuildServiceProvider();
         }
     }

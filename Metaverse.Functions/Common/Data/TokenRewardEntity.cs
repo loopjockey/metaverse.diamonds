@@ -18,6 +18,7 @@ namespace Metaverse.Functions.Data
             IsAllTokens = row.IsAllTokens;
             RuleCreatedDate = row.RuleCreatedDate;
             CreatorAddress = row.CreatorAddress;
+            TokenReference = row.TokenReference;
         }
 
         public ulong GuildId { get; set; }
@@ -32,6 +33,7 @@ namespace Metaverse.Functions.Data
         [IgnoreProperty] public BigInteger? MaximumTokenId => string.IsNullOrWhiteSpace(MaximumTokenId_S) ? (BigInteger?)null : BigInteger.Parse(MaximumTokenId_S);
 
         public bool IsAllTokens { get; set; } = false;
+        public string TokenReference { get; set; }
 
         public DateTimeOffset RuleCreatedDate { get; set; }
         public string CreatorAddress { get; set; }
@@ -76,7 +78,8 @@ namespace Metaverse.Functions.Data
 
             public Row(string creatorAddress, DateTimeOffset ruleCreatedDate)
             {
-                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:*";
+                TokenReference = "*";
+                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{TokenReference}";
                 CreatorAddress = creatorAddress;
                 RuleCreatedDate = ruleCreatedDate;
                 IsAllTokens = true;
@@ -84,7 +87,8 @@ namespace Metaverse.Functions.Data
 
             public Row(string creatorAddress, BigInteger tokenId, DateTimeOffset ruleCreatedDate)
             {
-                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{tokenId}";
+                TokenReference = $"{tokenId}";
+                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{TokenReference}";
                 CreatorAddress = creatorAddress;
                 RuleCreatedDate = ruleCreatedDate;
                 TargetTokenId = tokenId;
@@ -92,7 +96,8 @@ namespace Metaverse.Functions.Data
 
             public Row(string creatorAddress, BigInteger minimumTokenId, BigInteger maximumTokenId, DateTimeOffset ruleCreatedDate)
             {
-                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{minimumTokenId}-{maximumTokenId}";
+                TokenReference = $"{minimumTokenId}-{maximumTokenId}";
+                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{TokenReference}";
                 CreatorAddress = creatorAddress;
                 RuleCreatedDate = ruleCreatedDate;
                 MinimumTokenId = minimumTokenId;
@@ -106,35 +111,11 @@ namespace Metaverse.Functions.Data
             public ulong TargetRoleId { get; set; }
             public DateTimeOffset RuleCreatedDate { get; set; }
             public string CreatorAddress { get; set; }
+            public string TokenReference { get; set; }
 
             public override string ToString()
             {
                 return _rowKeyString.ToString();
-            }
-
-            public static bool TryParse(string tokenReferencePart, string creatorAddress, DateTimeOffset ruleCreatedDate, out Row row)
-            {
-                if (tokenReferencePart == "*")
-                {
-                    row = new Row(creatorAddress, ruleCreatedDate);
-                    return true;
-                }
-                if (BigInteger.TryParse(tokenReferencePart, out var tokenId))
-                {
-                    row = new Row(creatorAddress, tokenId, ruleCreatedDate);
-                    return true;
-                }
-                var range = tokenReferencePart.Split(new[] { '-' }, StringSplitOptions.RemoveEmptyEntries);
-                if (range.Length == 2 &&
-                    BigInteger.TryParse(range[0], out var minimumTokenId) &&
-                    BigInteger.TryParse(range[1], out var maximumTokenId))
-                {
-                    row = new Row(creatorAddress, minimumTokenId, maximumTokenId, ruleCreatedDate);
-                    return true;
-                }
-
-                row = null;
-                return false;
             }
         }
     }

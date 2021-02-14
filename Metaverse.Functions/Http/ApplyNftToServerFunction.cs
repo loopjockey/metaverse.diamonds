@@ -15,6 +15,7 @@ using Metaverse.Functions.Common.Extensions;
 using System.Numerics;
 using Nethereum.Util;
 using Nethereum.Signer;
+using Metaverse.Core;
 
 namespace Metaverse.Functions.Http
 {
@@ -36,7 +37,7 @@ namespace Metaverse.Functions.Http
         [FunctionName(nameof(ApplyNftToServer))]
         public async Task<IActionResult> ApplyNftToServer(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/guilds/{guildId}/rewards/{roleId}/apply/{creatorAddress}/{tokenId}")] HttpRequest req,
-            [Queue(ApplyRoleToUserFunction.QueueName)] ICollector<ApplyRoleToUserFunction.BusCommand> collector,
+            [Queue(ApplyRoleToUserCommand.QueueName)] ICollector<ApplyRoleToUserCommand> collector,
             ILogger log,
             string guildId,
             string roleId,
@@ -73,7 +74,7 @@ namespace Metaverse.Functions.Http
                 var guildRole = guild.GetRole(pRoleId);
                 if (guildRole == null) return new NotFoundObjectResult("This server role no longer exists.");
 
-                collector.Add(new ApplyRoleToUserFunction.BusCommand(pGuildId, pRoleId, userId));
+                collector.Add(new ApplyRoleToUserCommand(pGuildId, pRoleId, userId));
                 return new OkResult();
             }
         }

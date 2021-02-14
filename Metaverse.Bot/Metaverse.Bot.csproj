@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
     <PackageReference Include="Discord.Net" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
@@ -13,6 +14,10 @@
     <PackageReference Include="Nethereum.StandardNonFungibleTokenERC721" Version="3.8.0" />
     <PackageReference Include="Nethereum.Web3" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Metaverse.Core\Metaverse.Core.csproj" />
   </ItemGroup>
 
 </Project>

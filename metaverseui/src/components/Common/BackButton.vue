@@ -1,6 +1,7 @@
 <template>
   <v-btn
     outlined
+    text
     large
     v-on="$listeners"
   >

@@ -20,7 +20,7 @@ using Discord.Net;
 
 namespace Metaverse.Functions.Http
 {
-    public class GetAvailableRewardsForGuildFunction
+    public class GetMyRewardsForGuildFunction
     {
         private readonly ITableStorageClient _tableStorageClient;
         private readonly IGraphQLClient _eip721GraphClient;
@@ -28,7 +28,7 @@ namespace Metaverse.Functions.Http
         private readonly EthereumMessageSigner _ethereumMessageSigner;
         private readonly BotTokenSetting _botTokenSetting;
 
-        public GetAvailableRewardsForGuildFunction(ITableStorageClient tableStorageClient, IGraphQLClient eip721GraphClient, DiscordRestClient discordClient, EthereumMessageSigner ethereumMessageSigner, BotTokenSetting botTokenSetting)
+        public GetMyRewardsForGuildFunction(ITableStorageClient tableStorageClient, IGraphQLClient eip721GraphClient, DiscordRestClient discordClient, EthereumMessageSigner ethereumMessageSigner, BotTokenSetting botTokenSetting)
         {
             _tableStorageClient = tableStorageClient;
             _eip721GraphClient = eip721GraphClient;
@@ -37,9 +37,9 @@ namespace Metaverse.Functions.Http
             _botTokenSetting = botTokenSetting;
         }
 
-        [FunctionName(nameof(GetAvailableRewardsForGuild))]
-        public async Task<IActionResult> GetAvailableRewardsForGuild(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/guilds/{guildId}/rewards")] HttpRequest req,
+        [FunctionName(nameof(GetMyRewardsForGuild))]
+        public async Task<IActionResult> GetMyRewardsForGuild(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "v1/guilds/{guildId}/rewards/mine")] HttpRequest req,
             ILogger log,
             string guildId)
         {
@@ -59,31 +59,39 @@ namespace Metaverse.Functions.Http
                 var message = HttpExtensions.GenerateVerificationMessage(userId, ticks);
                 var addressOfSigner = _ethereumMessageSigner.EncodeUTF8AndEcRecover(message, signature);
                 var tokenRewards = _tableStorageClient.GetTokenRewardDefinitions(pGuildId);
-                var uniqueCreatorAddresses = tokenRewards.Select(tr => tr.CreatorAddress).Distinct().ToArray();
                 try
                 {
                     var getGuildTask = _discordClient.GetGuildAsync(pGuildId);
                     var getAddressTokensTask = _eip721GraphClient.GetAddressTokensAsync(addressOfSigner);
                     var getGuildUserTask = _discordClient.GetGuildUserAsync(pGuildId, userId);
-
                     await Task.WhenAll(getGuildTask, getGuildUserTask, getAddressTokensTask);
 
-                    var allRoles =
-                        from r in getGuildTask.Result.Roles.OrderByDescending(r => r.Position)
-                        let isAdmin = r.Permissions.Administrator
-                        let colour = $"rgb({(int)r.Color.R},{(int)r.Color.G},{(int)r.Color.B})"
-                        select new DiscordGuildRole(r.Id, r.Name, colour, isAdmin);
-
+                    var rolesWithRewards = new HashSet<ulong>();
                     var applicableRoles = new Dictionary<string, (string creatorAddress, BigInteger tokenId)>();
                     foreach (var reward in tokenRewards)
                     {
+                        rolesWithRewards.Add(reward.TargetRoleId);
                         if (applicableRoles.ContainsKey(reward.TargetRoleId.ToString())) continue;
                         var applicableToken = getAddressTokensTask.Result.FirstOrDefault(t => reward.AppliesTo(t.address, t.tokenId));
                         if (applicableToken == default) continue;
                         applicableRoles[reward.TargetRoleId.ToString()] = applicableToken;
                     }
+
+                    var allRoles =
+                        from r in getGuildTask.Result.Roles.OrderByDescending(r => r.Position)
+                        where rolesWithRewards.Contains(r.Id)
+                        let isAdmin = r.Permissions.Administrator
+                        let colour = $"#{(int)r.Color.R:X2}{(int)r.Color.G:X2}{(int)r.Color.B:X2}"
+                        select new DiscordGuildRole(r.Id, r.Name, colour, isAdmin);
+
                     var currentRoleIds = getGuildUserTask.Result.RoleIds.Select(r => r.ToString()).ToArray();
-                    return new OkObjectResult(new { applicableRoles, allRoles, currentRoleIds });
+                    var shopUrl = _tableStorageClient.GetGuildConfiguration(pGuildId, GuildConfigurationEntity.KnownConfigurationKeys.ShopUrl);
+                    return new OkObjectResult(new { 
+                        applicableRoles,
+                        currentRoleIds,
+                        shopUrl,
+                        allRoles
+                    });
                 }
                 catch (HttpException e)
                 {

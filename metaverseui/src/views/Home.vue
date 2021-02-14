@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <fragment>
     <v-dialog
       :value="true"
       width="600"
@@ -8,7 +8,7 @@
       scrollable
     >
       <v-card
-        :loading="$wait.is('getMyDiscordGuilds')"
+        :loading="$wait.any"
         style="position: relative"
         outlined
         id="mainCard"
@@ -18,6 +18,7 @@
           :address="address"
           :user="user"
         ></authentication-toolbar>
+        <v-divider></v-divider>
 
         <v-card-text class="pa-0">
           <fragment v-if="$route.name === 'GuildList'">
@@ -33,7 +34,12 @@
               :isOwner="selectedGuild"
               :loading="$wait.is('getMyDiscordGuilds')"
             >
-              <v-btn v-if="!selectedGuild.shopUrl" text outlined>Go to shop</v-btn>
+              <v-btn
+                v-if="!selectedGuild || !selectedGuild.shopUrl"
+                text
+                outlined
+                >Go to shop</v-btn
+              >
             </guild-header-list>
             <guild-disconnected-state
               v-if="!serverConnected"
@@ -48,40 +54,20 @@
           </fragment>
         </v-card-text>
 
-        <v-divider></v-divider>
-        <v-card-actions>
-          <back-button
-            v-if="$route.name === 'SelectedGuild'"
-            @click="$router.push('/')"
-          ></back-button>
-          <v-spacer></v-spacer>
-          <v-btn
-            v-if="$route.name === 'GuildList'"
-            color="primary"
-            outlined
-            large
-            :disabled="!selectedGuild"
-            @click="$router.push(`/${selectedGuild ? selectedGuild.id : ''}`)"
-          >
-            <v-icon left>done</v-icon>
-            {{
-              selectedGuild
-                ? `Go to ${
-                    selectedGuild.name.length > 15
-                      ? selectedGuild.name.substring(0, 15) + "..."
-                      : selectedGuild.name
-                  }`
-                : "Select guild"
-            }}</v-btn
-          >
-        </v-card-actions>
+        <fragment v-if="$route.name === 'SelectedGuild'">
+          <v-divider></v-divider>
+          <v-card-actions>
+            <back-button @click="$router.push('/')"></back-button>
+            <v-spacer></v-spacer>
+          </v-card-actions>
+        </fragment>
       </v-card>
     </v-dialog>
     <wallet-check-bottom-sheet
       v-model="address"
       :user="user"
     ></wallet-check-bottom-sheet>
-  </div>
+  </fragment>
 </template>
 
 <script>
@@ -156,7 +142,7 @@ export default {
       try {
         this.serverConnected = true;
         this.roles = await Api.create()
-          .get(`guilds/${id}/rewards`)
+          .get(`guilds/${id}/my/rewards`)
           .then((r) => convertRewardsToRoles(r.data));
       } catch (err) {
         if (err.response.status === 404) this.serverConnected = false;

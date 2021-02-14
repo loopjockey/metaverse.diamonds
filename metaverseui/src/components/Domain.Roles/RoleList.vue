@@ -5,7 +5,6 @@
     :class="loading ? 'pa-2' : null"
   >
     <v-list subheader>
-      <v-subheader>Select Role</v-subheader>
       <fragment v-for="(role, i) in items" :key="i">
         <v-list-item>
           <v-list-item-avatar>
@@ -13,7 +12,7 @@
               <v-img
                 contain
                 :src="`https://ui-avatars.com/api/?background=${
-                  role.colour === 'rgb(0,0,0)' ? 'ff7143' : role.colour
+                  role.colour === '000000' ? 'ff7143' : role.colour
                 }&color=fff&name=${role.name}`"
               ></v-img>
             </v-avatar>
@@ -22,7 +21,7 @@
             <v-list-item-title>{{ role.name }}</v-list-item-title>
             <v-list-item-subtitle>{{
               role.isAdministrator
-                ? "Administrator"
+                ? "Administrators"
                 : role.name === "@everyone"
                 ? "Default"
                 : "Custom"

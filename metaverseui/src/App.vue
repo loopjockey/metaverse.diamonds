@@ -1,7 +1,20 @@
 <template>
-  <v-app class="pretty-bottom-logo">
-    <router-view></router-view>
-  </v-app>
+  <fragment>
+    <v-app class="pretty-bottom-logo">
+      <router-view></router-view>
+    </v-app>
+    <!--<footer
+      style="
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        color: white;
+        z-index: 100000;
+      "
+    >
+      TODO!!!!!!
+    </footer>-->
+  </fragment>
 </template>
 
 <script lang="ts">
@@ -9,7 +22,7 @@ import Vue from "vue";
 export default Vue.extend({
   name: "App",
   data: () => ({
-    sheet: true
+    sheet: true,
   }),
 });
 </script>
@@ -34,10 +47,16 @@ export default Vue.extend({
   background: #555;
 }
 
-/*.pretty-bottom-logo {
-  background-image: url(https://metaversediamondspublic.blob.core.windows.net/public/metaverse_diamonds_logo.png) !important;
-  background-size: 400px 580px !important;
-  background-repeat: no-repeat !important;
-  background-position: bottom -100px right -100px !important;
-}*/
+.pretty-bottom-logo::before {
+  content: "";
+  background-image: url(https://metaversediamondspublic.blob.core.windows.net/public/background_2.jpg) !important;
+  background-size: cover;
+  background-position: center;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  opacity: 0.3
+}
 </style>

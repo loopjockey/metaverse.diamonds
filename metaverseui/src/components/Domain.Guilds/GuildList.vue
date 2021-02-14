@@ -5,9 +5,8 @@
     :class="loading ? 'pa-2' :null"
   >
     <v-list subheader>
-      <v-subheader>Select Guild</v-subheader>
       <fragment v-for="(guild, i) in items" :key="i">
-        <v-list-item @click="$emit('input', guild)">
+        <v-list-item @click="selectGuild(guild)">
           <v-list-item-avatar>
             <v-avatar size="42">
               <v-img :src="guild.avatarUrl || `https://ui-avatars.com/api/?background=ff7143&color=fff&name=${guild.name}`"></v-img>
@@ -20,12 +19,8 @@
             }}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-icon :color="value && guild.id === value.id ? 'primary' : null">
-              {{
-                value && guild.id === value.id
-                  ? "radio_button_checked"
-                  : "radio_button_unchecked"
-              }}
+            <v-icon>
+              chevron_right
             </v-icon>
           </v-list-item-action>
         </v-list-item>
@@ -50,6 +45,12 @@ export default {
             default: null,
             type: Object
         }
+    },
+    methods: {
+      selectGuild(guild) {
+        this.$emit('input', guild);
+        this.$router.push(`/${guild.id}`);
+      }
     }
 };
 </script>

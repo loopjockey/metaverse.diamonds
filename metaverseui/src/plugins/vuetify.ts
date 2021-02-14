@@ -14,6 +14,10 @@ export default new Vuetify({
             dark: {
                 primary: '#ff7143',
                 secondary: '#eedbcf'
+            },
+            light: {
+                primary: '#ff7143',
+                secondary: '#eedbcf'
             }
         }
     }
