@@ -8,21 +8,25 @@ namespace Metaverse.Functions.Data
     {
         public TokenRewardEntity() { }
 
-        public TokenRewardEntity(ulong guildId, Row row) : base(new PartitionKey(guildId).ToString(), row.ToString())
+        public TokenRewardEntity(ulong guildId, DateTimeOffset ruleCreatedDate, Row row) : base(new PartitionKey(guildId).ToString(), row.ToString())
         {
-            GuildId = guildId;
-            TargetRoleId = row.TargetRoleId;
+            GuildId_S = guildId.ToString();
+            TargetRoleId_S = row.TargetRoleId.ToString();
             TargetTokenId_S = row.TargetTokenId?.ToString();
             MinimumTokenId_S = row.MinimumTokenId?.ToString();
             MaximumTokenId_S = row.MaximumTokenId?.ToString();
             IsAllTokens = row.IsAllTokens;
-            RuleCreatedDate = row.RuleCreatedDate;
+            RuleCreatedDate = ruleCreatedDate;
             CreatorAddress = row.CreatorAddress;
             TokenReference = row.TokenReference;
         }
 
-        public ulong GuildId { get; set; }
-        public ulong TargetRoleId { get; set; }
+        public string GuildId_S { get; set; }
+        [IgnoreProperty] public ulong GuildId => ulong.TryParse(GuildId_S, out var guildId) ? guildId : default;
+
+        public string TargetRoleId_S { get; set; }
+        [IgnoreProperty] public ulong TargetRoleId => ulong.TryParse(TargetRoleId_S, out var roleId) ? roleId : default;
+
         public string TargetTokenId_S { get; set; }
         [IgnoreProperty] public BigInteger? TargetTokenId => string.IsNullOrWhiteSpace(TargetTokenId_S) ? (BigInteger?)null : BigInteger.Parse(TargetTokenId_S);
 
@@ -76,32 +80,32 @@ namespace Metaverse.Functions.Data
         {
             private readonly string _rowKeyString;
 
-            public Row(string creatorAddress, DateTimeOffset ruleCreatedDate)
+            public Row(ulong targetRoleId, string creatorAddress)
             {
                 TokenReference = "*";
-                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{TokenReference}";
+                _rowKeyString = $"{creatorAddress}:{TokenReference}:{targetRoleId}";
                 CreatorAddress = creatorAddress;
-                RuleCreatedDate = ruleCreatedDate;
                 IsAllTokens = true;
+                TargetRoleId = targetRoleId;
             }
 
-            public Row(string creatorAddress, BigInteger tokenId, DateTimeOffset ruleCreatedDate)
+            public Row(ulong targetRoleId, string creatorAddress, BigInteger tokenId)
             {
                 TokenReference = $"{tokenId}";
-                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{TokenReference}";
+                _rowKeyString = $"{creatorAddress}:{TokenReference}:{targetRoleId}";
                 CreatorAddress = creatorAddress;
-                RuleCreatedDate = ruleCreatedDate;
                 TargetTokenId = tokenId;
+                TargetRoleId = targetRoleId;
             }
 
-            public Row(string creatorAddress, BigInteger minimumTokenId, BigInteger maximumTokenId, DateTimeOffset ruleCreatedDate)
+            public Row(ulong targetRoleId, string creatorAddress, BigInteger minimumTokenId, BigInteger maximumTokenId)
             {
                 TokenReference = $"{minimumTokenId}-{maximumTokenId}";
-                _rowKeyString = $"{ruleCreatedDate.Ticks}:{creatorAddress}:{TokenReference}";
+                _rowKeyString = $"{creatorAddress}:{TokenReference}:{targetRoleId}";
                 CreatorAddress = creatorAddress;
-                RuleCreatedDate = ruleCreatedDate;
                 MinimumTokenId = minimumTokenId;
                 MaximumTokenId = maximumTokenId;
+                TargetRoleId = targetRoleId;
             }
 
             public BigInteger? TargetTokenId { get; set; }
@@ -109,7 +113,6 @@ namespace Metaverse.Functions.Data
             public BigInteger? MaximumTokenId { get; set; }
             public bool IsAllTokens { get; set; } = false;
             public ulong TargetRoleId { get; set; }
-            public DateTimeOffset RuleCreatedDate { get; set; }
             public string CreatorAddress { get; set; }
             public string TokenReference { get; set; }
 

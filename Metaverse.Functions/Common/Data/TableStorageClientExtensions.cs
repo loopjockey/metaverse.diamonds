@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Metaverse.Functions.Data
@@ -24,7 +25,7 @@ namespace Metaverse.Functions.Data
 
         public static async Task AddTokenRewardAsync(this ITableStorageClient tables, ulong guildId, TokenRewardEntity.Row row)
         {
-            await tables.InsertOrReplaceAsync(TokenRewardEntity.TableName, new TokenRewardEntity(guildId, row));
+            await tables.InsertOrReplaceAsync(TokenRewardEntity.TableName, new TokenRewardEntity(guildId, DateTimeOffset.UtcNow, row));
         }
 
         public static async Task RemoveTokenRewardAsync(this ITableStorageClient tables, ulong guildId, TokenRewardEntity.Row row)

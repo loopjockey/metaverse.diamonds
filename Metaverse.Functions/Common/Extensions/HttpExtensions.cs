@@ -26,11 +26,6 @@ namespace Metaverse.Functions.Common.Extensions
             }
         }
 
-        public static string GenerateVerificationMessage(ulong discordUserId, long expiryTicks)
-        {
-            return $"I agree to link this user {discordUserId} to my current address. Expires: {expiryTicks}";
-        }
-
         public static (string signature, long expiryTicks, DateTimeOffset expiry) GetSignatureHeader(this IHeaderDictionary headers)
         {
             var web3AuthHeader = headers["X-Web3-Auth"];

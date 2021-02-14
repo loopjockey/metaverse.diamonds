@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Queues;
 using Discord.Commands;
+using Metaverse.Bot.Common;
 using Metaverse.Core;
 using Nethereum.Util;
 using Newtonsoft.Json;
@@ -36,9 +37,8 @@ namespace Metaverse.Bot.Discord
                 return;
             }
 
-            QueueFactory(UpdateGuildConfigurationCommand.QueueName).SendMessage(JsonConvert.SerializeObject(
-                new UpdateGuildConfigurationCommand(Context.Guild.Id, key, value)
-            ));
+            await QueueFactory(UpdateGuildConfigurationCommand.QueueName)
+                .SendJsonMessageAsync(new UpdateGuildConfigurationCommand(Context.Guild.Id, key, value));
             await ReplyAsync($"Configuration updated! When you are fully setup please refer your server to https://server.metaverse.diamonds/{Context.Guild.Id} or ask them to enter `!metaverse help` for information on how to use their NFTs.");
         }
 
@@ -88,12 +88,12 @@ namespace Metaverse.Bot.Discord
 
             if (action == "add")
             {
-                QueueFactory(GuildReferenceCommand.AddRewardQueueName).SendMessage(JsonConvert.SerializeObject(command));
+                await QueueFactory(GuildReferenceCommand.AddRewardQueueName).SendJsonMessageAsync(command);
                 await ReplyAsync($"Reward successfully added. If you want to delete this reward update this message from 'add' to 'remove'.");
             }
             else if (action == "remove") 
             {
-                QueueFactory(GuildReferenceCommand.RemoveRewardQueueName).SendMessage(JsonConvert.SerializeObject(command));
+                await QueueFactory(GuildReferenceCommand.RemoveRewardQueueName).SendJsonMessageAsync(command);
                 await ReplyAsync($"Reward successfully removed.");
             }
            

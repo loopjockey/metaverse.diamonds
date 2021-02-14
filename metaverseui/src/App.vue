@@ -1,9 +1,9 @@
 <template>
-  <fragment>
-    <v-app class="pretty-bottom-logo">
-      <router-view></router-view>
-    </v-app>
-    <!--<footer
+  <v-app class="pretty-bottom-logo">
+    <router-view></router-view>
+    <toast></toast>
+  </v-app>
+  <!--<footer
       style="
         position: fixed;
         bottom: 0;
@@ -14,13 +14,14 @@
     >
       TODO!!!!!!
     </footer>-->
-  </fragment>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import Toast from "@/components/Common/Toast.vue";
 export default Vue.extend({
   name: "App",
+  components: { Toast },
   data: () => ({
     sheet: true,
   }),
@@ -57,6 +58,6 @@ export default Vue.extend({
   right: 0px;
   bottom: 0px;
   left: 0px;
-  opacity: 0.3
+  opacity: 0.3;
 }
 </style>

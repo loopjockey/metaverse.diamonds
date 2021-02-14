@@ -97,6 +97,7 @@ export default {
     getEthereumSignature: waitFor("getEthereumSignature", async function () {
       const web3 = this.$eth.web3;
       const accounts = await web3.eth.getAccounts();
+      debugger;
       const account = accounts[0];
       const user = this.user.name;
       const expiry = Api.authData.expiryTime?.toDate().getTime();

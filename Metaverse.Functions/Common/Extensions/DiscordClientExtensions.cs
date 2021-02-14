@@ -13,6 +13,19 @@ namespace Metaverse.Functions.Common.Extensions
             return new DiscordLogoutDisposable(restClient);
         }
 
+        public static string GetUniqueUserName(this DiscordRestClient restClient) 
+        {
+            var userName = restClient.CurrentUser.Username;
+            var discriminator = restClient.CurrentUser.Discriminator;
+            return $"{userName}#{discriminator}";
+        }
+
+        public static string GenerateVerificationMessage(this DiscordRestClient restClient, long expiryTicks)
+        {
+            var userName = restClient.GetUniqueUserName();
+            return $"I agree to link this user {userName} to my current address. Expires: {expiryTicks}";
+        }
+
         private class DiscordLogoutDisposable : IAsyncDisposable
         {
             private readonly DiscordRestClient _restClient;

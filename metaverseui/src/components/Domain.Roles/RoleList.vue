@@ -4,7 +4,8 @@
     type="list-item-avatar@6"
     :class="loading ? 'pa-2' : null"
   >
-    <v-list subheader>
+    <v-list subheader v-if="items.length">
+      <v-subheader>Rewards</v-subheader>
       <fragment v-for="(role, i) in items" :key="i">
         <v-list-item>
           <v-list-item-avatar>
@@ -29,11 +30,16 @@
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              :color="role.hasRole ? 'success' : 'primary'"
-              :disabled="role.hasRole || !role.availableRoleToken"
+              color="success"
+              :disabled="
+                role.hasRole ||
+                !role.availableRoleToken ||
+                $wait.is(`claimingReward-${role.id}`)
+              "
+              :loading="$wait.is(`claimingReward-${role.id}`)"
               @click="$emit('click', role)"
             >
-              <v-icon left :color="role.hasRole ? 'success' : 'primary'">{{
+              <v-icon left>{{
                 role.hasRole
                   ? "done"
                   : role.availableRoleToken
@@ -44,7 +50,7 @@
                 role.hasRole
                   ? "Unlocked"
                   : role.availableRoleToken
-                  ? "Unlock"
+                  ? "Claim Reward"
                   : "Unavailable"
               }}
             </v-btn>
@@ -53,10 +59,12 @@
         <v-divider inset v-if="i != items.length - 1"></v-divider>
       </fragment>
     </v-list>
+    <no-available-roles-state v-else></no-available-roles-state>
   </v-skeleton-loader>
 </template>
 
 <script>
+import NoAvailableRolesState from "@/components/Domain.Roles/NoAvailableRolesState.vue";
 export function convertRewardsToRoles(rewardsResponse) {
   return rewardsResponse.allRoles.map((r) => ({
     ...r,
@@ -66,6 +74,7 @@ export function convertRewardsToRoles(rewardsResponse) {
 }
 
 export default {
+  components: { NoAvailableRolesState },
   props: {
     loading: {
       default: false,

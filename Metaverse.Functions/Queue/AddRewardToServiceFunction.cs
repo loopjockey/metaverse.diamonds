@@ -30,11 +30,11 @@ namespace Metaverse.Functions.Queue
             {
                 case GuildReferenceCommand.RewardDefinitionType.All:
                 default:
-                    return new TokenRewardEntity.Row(model.CreatorAddress, DateTimeOffset.UtcNow);
+                    return new TokenRewardEntity.Row(model.RewardRoleId, model.CreatorAddress);
                 case GuildReferenceCommand.RewardDefinitionType.Specific:
-                    return new TokenRewardEntity.Row(model.CreatorAddress, model.SpecificTokenId.Value, DateTimeOffset.UtcNow);
+                    return new TokenRewardEntity.Row(model.RewardRoleId, model.CreatorAddress, model.SpecificTokenId.Value);
                 case GuildReferenceCommand.RewardDefinitionType.Range:
-                    return new TokenRewardEntity.Row(model.CreatorAddress, model.MinimumTokenId.Value, model.MaximumTokenId.Value, DateTimeOffset.UtcNow);
+                    return new TokenRewardEntity.Row(model.RewardRoleId, model.CreatorAddress, model.MinimumTokenId.Value, model.MaximumTokenId.Value);
             }
         }
     }

@@ -4,6 +4,7 @@
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
     <PackageReference Include="GraphQL" Version="3.3.1" />
     <PackageReference Include="GraphQL.Client" Version="3.2.1" />
     <PackageReference Include="GraphQL.Client.Abstractions" Version="3.2.1" />

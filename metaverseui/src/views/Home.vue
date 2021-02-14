@@ -35,7 +35,9 @@
               :loading="$wait.is('getMyDiscordGuilds')"
             >
               <v-btn
-                v-if="!selectedGuild || !selectedGuild.shopUrl"
+                v-if="shopUrl"
+                :href="shopUrl"
+                target="_blank"
                 text
                 outlined
                 >Go to shop</v-btn
@@ -49,6 +51,7 @@
               v-model="selectedRole"
               :items="roles"
               :loading="$wait.is('getGuildRewards')"
+              @click="tryClaimReward($event)"
             >
             </role-list>
           </fragment>
@@ -105,6 +108,7 @@ export default {
       roles: [],
       serverConnected: true,
       user: null,
+      shopUrl: null,
       address: Api.authData.currentAddress,
     };
   },
@@ -141,13 +145,27 @@ export default {
     getGuildRewards: waitFor("getGuildRewards", async function (id) {
       try {
         this.serverConnected = true;
-        this.roles = await Api.create()
-          .get(`guilds/${id}/my/rewards`)
-          .then((r) => convertRewardsToRoles(r.data));
+        const rewardsResponse = await Api.create()
+          .get(`guilds/${id}/rewards/mine`)
+          .then((r) => r.data);
+        this.roles = convertRewardsToRoles(rewardsResponse);
+        this.shopUrl = rewardsResponse.shopUrl;
       } catch (err) {
         if (err.response.status === 404) this.serverConnected = false;
       }
     }),
+    async tryClaimReward(reward) {
+      const guildId = this.selectedGuild.id;
+      this.$wait.start(`claimingReward-${reward.id}`);
+      try {
+        await Api.create().post(
+          `guilds/${guildId}/rewards/${reward.id}/apply/${reward.availableRoleToken}`
+        );
+        reward.hasRole = true;
+      } finally {
+        this.$wait.end(`claimingReward-${reward.id}`);
+      }
+    },
   },
 };
 </script>
