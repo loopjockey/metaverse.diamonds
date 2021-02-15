@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <UserSecretsId>77da8ee1-240d-4e2f-8b49-ac0e255f43b4</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
@@ -12,6 +13,7 @@
     <PackageReference Include="GraphQL.Common" Version="1.0.3" />
     <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.3.1" />
     <PackageReference Include="GraphQL.Primitives" Version="3.2.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.3" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />

@@ -30,7 +30,7 @@ namespace Metaverse.Bot
                     .GetTextChannel(g.DefaultChannel.Id)
                     .SendMessageAsync("Hey there! Please go to https://setup.metaverse.diamonds to find comprehensive setup instructions for your guild.");
 
-                await client.LoginAsync(TokenType.Bot, "NzkwNTU5MTIwNjAzODczMzIw.X-CXjg.RxQemVh7O3Y4-tiVVZ_twsmyei0");
+                await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BotToken"));
                 await client.StartAsync();
 
                 var commandHandlingService = services.GetRequiredService<CommandHandlingService>();
@@ -49,12 +49,13 @@ namespace Metaverse.Bot
 
         private ServiceProvider ConfigureServices()
         {
+            var storageConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__StorageAccountConnectionString");
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .AddSingleton<HttpClient>()
-                .AddSingleton<Func<string, QueueClient>>((queueName) => new QueueClient("UseDevelopmentStorage=true", queueName))
+                .AddSingleton<Func<string, QueueClient>>((queueName) => new QueueClient(storageConnectionString, queueName))
                 .BuildServiceProvider();
         }
     }

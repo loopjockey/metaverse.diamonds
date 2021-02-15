@@ -1,10 +1,12 @@
-﻿namespace Metaverse.Functions.Common.Configuration
+﻿using Microsoft.Extensions.Configuration;
+
+namespace Metaverse.Functions.Common.Configuration
 {
     public class BotTokenSetting
     {
-        public BotTokenSetting(string value) 
+        public BotTokenSetting(IConfiguration configuration) 
         {
-            Value = value;
+            Value = configuration.GetValue<string>("BotToken");
         }
 
         public string Value { get; set; }
