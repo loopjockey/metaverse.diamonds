@@ -48,7 +48,7 @@
               }}</v-icon>
               {{
                 role.hasRole
-                  ? "Unlocked"
+                  ? "Active"
                   : role.availableRoleToken
                   ? "Claim Reward"
                   : "Unavailable"
