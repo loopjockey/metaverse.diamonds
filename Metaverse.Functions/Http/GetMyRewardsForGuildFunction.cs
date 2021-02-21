@@ -73,12 +73,19 @@ namespace Metaverse.Functions.Http
 
                     var rolesWithRewards = new HashSet<ulong>();
                     var applicableRoles = new Dictionary<string, string>();
+                    var inapplicableRoles = new Dictionary<string, string>();
                     foreach (var reward in tokenRewards)
                     {
                         rolesWithRewards.Add(reward.TargetRoleId);
                         if (applicableRoles.ContainsKey(reward.TargetRoleId.ToString())) continue;
-                        if (!collectionsOwned[reward.CollectionId]) continue;
-                        applicableRoles[reward.TargetRoleId.ToString()] = reward.CollectionId;                    
+                        if (collectionsOwned[reward.CollectionId])
+                        {
+                            applicableRoles[reward.TargetRoleId.ToString()] = reward.CollectionId;
+                        }
+                        else 
+                        {
+                            inapplicableRoles[reward.TargetRoleId.ToString()] = reward.CollectionId;
+                        }
                     }
 
                     var allRoles =
@@ -92,9 +99,10 @@ namespace Metaverse.Functions.Http
                     var shopUrl = _tableStorageClient.GetGuildConfiguration(pGuildId, GuildConfigurationEntity.KnownConfigurationKeys.ShopUrl);
                     return new OkObjectResult(new { 
                         applicableRoles,
+                        inapplicableRoles,
                         currentRoleIds,
-                        shopUrl,
-                        allRoles
+                        allRoles,
+                        hasRewards = tokenRewards.Any()
                     });
                 }
                 catch (HttpException e)

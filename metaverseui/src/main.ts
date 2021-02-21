@@ -6,9 +6,11 @@ import vuetify from "./plugins/vuetify";
 import VueEthereum from 'vue-ethereum';
 import VueWait from 'vue-wait';
 import Clipboard from 'v-clipboard';
+import VueDiscordMessage from "vue-discord-message";
 Vue.use(VueEthereum);
 Vue.use(Clipboard);
 Vue.use(VueWait);
+Vue.use(VueDiscordMessage);
 
 Vue.config.productionTip = false;
 

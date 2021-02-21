@@ -14,34 +14,6 @@ namespace Metaverse.Bot.Discord
     {
         public Func<string, QueueClient> QueueFactory { get; set; }
 
-        [Command("config")]
-        [RequireContext(ContextType.Guild, ErrorMessage = "Sorry, this command must be ran from within a server, not a DM!")]
-        [RequireOwner]
-        public async Task GuildSetupAsync(params string[] parameters)
-        {
-            if (parameters.Length < 2)
-            {
-                await ReplyAsync("You need to supply a configuration key and value. E.g. `!metaverse config shop_url https://opensea.io/assets/my-name/`");
-                return;
-            }
-            var key = parameters[0];
-            if (key != "shop_url")
-            {
-                await ReplyAsync($"Unsupported configuration key '{key}'. Supported keys: shop_url");
-                return;
-            }
-            var value = parameters[1];
-            if (!Uri.TryCreate(value, UriKind.Absolute, out _))
-            {
-                await ReplyAsync($"The supplied shop_url is not a valid URL. Please make sure it's a fully qualified valid URI (e.g. https://opensea.io/assets/my-name/)");
-                return;
-            }
-
-            await QueueFactory(UpdateGuildConfigurationCommand.QueueName)
-                .SendJsonMessageAsync(new UpdateGuildConfigurationCommand(Context.Guild.Id, key, value));
-            await ReplyAsync($"Your shop should now be advertised on your guild page here: https://guilds.metaverse.diamonds/{Context.Guild.Id}. (You may need to refresh the page)");
-        }
-
         [Command("rewards")]
         [RequireContext(ContextType.Guild, ErrorMessage = "Sorry, this command must be ran from within a server, not a DM!")]
         [RequireOwner]

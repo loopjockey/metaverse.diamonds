@@ -29,30 +29,28 @@
             }}</v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
+            <v-btn color="success" v-if="role.hasRole" disabled>
+              <v-icon left>done</v-icon>
+              Active
+            </v-btn>
+            <v-btn
+              v-else-if="!role.availableRoleToken"
+              outlined
+              target="_blank"
+              :href="`https://opensea.io/assets/${role.unavailableRoleToken}`"
+            >
+              <v-icon left>shopping_bag</v-icon>
+              Purchase
+            </v-btn>
             <v-btn
               color="success"
-              :disabled="
-                role.hasRole ||
-                !role.availableRoleToken ||
-                $wait.is(`claimingReward-${role.id}`)
-              "
+              v-else
               :loading="$wait.is(`claimingReward-${role.id}`)"
+              :disabled="$wait.is(`claimingReward-${role.id}`)"
               @click="$emit('click', role)"
             >
-              <v-icon left>{{
-                role.hasRole
-                  ? "done"
-                  : role.availableRoleToken
-                  ? "lock_open"
-                  : "lock"
-              }}</v-icon>
-              {{
-                role.hasRole
-                  ? "Active"
-                  : role.availableRoleToken
-                  ? "Claim Reward"
-                  : "Unavailable"
-              }}
+              <v-icon left>lock_open</v-icon>
+              Claim Reward
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -69,6 +67,7 @@ export function convertRewardsToRoles(rewardsResponse) {
   return rewardsResponse.allRoles.map((r) => ({
     ...r,
     availableRoleToken: rewardsResponse.applicableRoles[r.id],
+    unavailableRoleToken: rewardsResponse.inapplicableRoles[r.id],
     hasRole: rewardsResponse.currentRoleIds.includes(r.id),
   }));
 }

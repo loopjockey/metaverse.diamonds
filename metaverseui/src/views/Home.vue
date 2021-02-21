@@ -35,17 +35,21 @@
               :loading="$wait.is('getMyDiscordGuilds')"
             >
               <v-btn
-                v-if="shopUrl"
-                :href="shopUrl"
-                target="_blank"
-                text
-                outlined
-                >Go to shop</v-btn
+                @click="reloadGuildRewards()"
+                icon
+                :loading="$wait.is('getGuildRewards')"
+                :disabled="$wait.is('getGuildRewards')"
               >
+                <v-icon>refresh</v-icon>
+              </v-btn>
             </guild-header-list>
             <guild-disconnected-state
-              v-if="!serverConnected"
+              v-if="!serverConnected && !$wait.is('getGuildRewards')"
             ></guild-disconnected-state>
+            <guild-unconfigured-state
+              v-else-if="!hasRewards && !$wait.is('getGuildRewards')"
+              :user="user"
+            ></guild-unconfigured-state>
             <role-list
               v-else
               v-model="selectedRole"
@@ -83,6 +87,7 @@ import AuthenticationToolbar from "@/components/Common/AuthenticationToolbar.vue
 import GuildList from "@/components/Domain.Guilds/GuildList.vue";
 import GuildHeaderList from "@/components/Domain.Guilds/GuildHeaderList.vue";
 import GuildDisconnectedState from "@/components/Domain.Guilds/GuildDisconnectedState.vue";
+import GuildUnconfiguredState from "@/components/Domain.Roles/GuildUnconfiguredState.vue";
 import RoleList, {
   convertRewardsToRoles,
 } from "@/components/Domain.Roles/RoleList.vue";
@@ -97,6 +102,7 @@ export default {
     GuildList,
     GuildHeaderList,
     GuildDisconnectedState,
+    GuildUnconfiguredState,
   },
   data() {
     return {
@@ -109,7 +115,7 @@ export default {
       roles: [],
       serverConnected: true,
       user: null,
-      shopUrl: null,
+      hasRewards: false,
       address: Api.authData.currentAddress,
     };
   },
@@ -156,6 +162,9 @@ export default {
           );
       }
     }),
+    reloadGuildRewards() {
+      this.getGuildRewards(this.$route.params.guildId);
+    },
     getGuildRewards: waitFor("getGuildRewards", async function (id) {
       try {
         this.serverConnected = true;
@@ -163,7 +172,7 @@ export default {
           .get(`guilds/${id}/rewards/mine`)
           .then((r) => r.data);
         this.roles = convertRewardsToRoles(rewardsResponse);
-        this.shopUrl = rewardsResponse.shopUrl;
+        this.hasRewards = rewardsResponse.hasRewards;
       } catch (err) {
         if (err.response && err.response.status === 404)
           this.serverConnected = false;

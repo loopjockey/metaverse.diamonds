@@ -47,10 +47,21 @@
 
         <v-stepper-content step="3">
           <empty-state icon="login">
-            <h3>Step 3. Accept Terms and Conditions</h3>
+            <h3>Step 3. Accept Terms and Conditions and Privacy Policy</h3>
             <p>
-              Finally please review the terms and conditions and continue if you
-              accept them:
+              Finally please review the
+              <a
+                target="_blank"
+                href="https://www.termsandconditionsgenerator.com/live.php?token=BftTYaLLUTlViykPJS8d8prdnzkzfMSJ"
+                >terms and conditions</a
+              >
+              and our
+              <a
+                target="_blank"
+                href="https://www.privacypolicygenerator.info/live.php?token=XaSHvAN0UDVlgFkWIXO2lL5gbWsAeuQ7"
+                >privacy policy</a
+              >
+              and continue if you accept them:
             </p>
             <v-btn
               color="primary"
@@ -58,7 +69,7 @@
               @click="walletCheck = false"
               :disabled="!acceptTermsAndConditions"
             >
-              <v-icon left>done</v-icon> Accept Terms and Conditions
+              <v-icon left>done</v-icon> Accept Terms and Conditions and Privacy Policy
             </v-btn>
           </empty-state>
         </v-stepper-content>

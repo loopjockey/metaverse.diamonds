@@ -1,6 +1,6 @@
 <template>
     <section class="pb-5 px-8">
-        <p class="text-center mb-0">
+        <p class="text-center mb-0" v-if="icon">
             <v-icon class="empty-state">{{icon}}</v-icon>
         </p>
         <p class="text-center">{{message}}</p>
