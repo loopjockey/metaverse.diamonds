@@ -6,7 +6,7 @@ namespace Metaverse.Functions.Data
     {
         public GuildConfigurationEntity() { }
 
-        public GuildConfigurationEntity(ulong guildId, string key, string value) : base(new PartitionKey(guildId).ToString(), key)
+        public GuildConfigurationEntity(ulong guildId, string key, string value) : base(new Partition(guildId).ToString(), key)
         {
             Value = value;
         }
@@ -20,9 +20,9 @@ namespace Metaverse.Functions.Data
             public const string ShopUrl = "shop_url";
         }
 
-        public class PartitionKey
+        public class Partition
         {
-            public PartitionKey(ulong guildId)
+            public Partition(ulong guildId)
             {
                 GuildId = guildId;
             }

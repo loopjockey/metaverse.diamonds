@@ -21,7 +21,7 @@ namespace Metaverse.Bot.Discord
         {
             if (parameters.Length < 2)
             {
-                await ReplyAsync("You need to supply a configuration key and value. E.g. `!metaverse config shop_url https://app.rarible.com/myshopname/collectibles`");
+                await ReplyAsync("You need to supply a configuration key and value. E.g. `!metaverse config shop_url https://opensea.io/assets/my-name/`");
                 return;
             }
             var key = parameters[0];
@@ -33,13 +33,13 @@ namespace Metaverse.Bot.Discord
             var value = parameters[1];
             if (!Uri.TryCreate(value, UriKind.Absolute, out _))
             {
-                await ReplyAsync($"The supplied shop_url is not a valid URL. Please make sure it's a fully qualified valid URI (e.g. https://app.rarible.com/myshopname/collectibles)");
+                await ReplyAsync($"The supplied shop_url is not a valid URL. Please make sure it's a fully qualified valid URI (e.g. https://opensea.io/assets/my-name/)");
                 return;
             }
 
             await QueueFactory(UpdateGuildConfigurationCommand.QueueName)
                 .SendJsonMessageAsync(new UpdateGuildConfigurationCommand(Context.Guild.Id, key, value));
-            await ReplyAsync($"Configuration updated! When you are fully setup please refer your server to https://server.metaverse.diamonds/{Context.Guild.Id} or ask them to enter `!metaverse help` for information on how to use their NFTs.");
+            await ReplyAsync($"Your shop should now be advertised on your guild page here: https://guilds.metaverse.diamonds/{Context.Guild.Id}. (You may need to refresh the page)");
         }
 
         [Command("rewards")]
@@ -47,21 +47,24 @@ namespace Metaverse.Bot.Discord
         [RequireOwner]
         public async Task UpdateRewards(params string[] parameters)
         {
-            var action = parameters[0];
-            if (action != "add" && action != "remove")
-            {
-                await ReplyAsync($"The action must be either 'add' or 'remove' but it was {action}");
-            }
-
+            // !metaverse rewards add opensea {collectionID} {roleReference}
             if (parameters.Length < 4)
             {
                 await ReplyAsync("You need to supply a creator address, token reference and reward role. E.g. `!metaverse rewards add 0x...123 * @Administrators`");
                 return;
             }
-            var creatorAddress = parameters[1];
-            if (!AddressUtil.Current.IsValidEthereumAddressHexFormat(creatorAddress))
+            var action = parameters[0];
+            var collectionType = parameters[1];
+            var collectionId = parameters[2];
+
+            if (action != "add" && action != "remove")
             {
-                await ReplyAsync($"The creator address supplied '{creatorAddress}' was not a valid ethereum address. Ethereum addresses should start with 0x amongst other conditions (We do not support ENS addresses yet).");
+                await ReplyAsync($"The action must be either 'add' or 'remove' but it was {action}");
+                return;
+            }
+
+            if (collectionType != "opensea") {
+                await ReplyAsync($"Only collections from opensea are currently supported. Please update your command from {collectionType} to: opensea");
                 return;
             }
 
@@ -78,22 +81,16 @@ namespace Metaverse.Bot.Discord
             }
 
             var rewardRole = Context.Message.MentionedRoles.Single();
-
-            var tokenReference = parameters[2];
-            if (!GuildReferenceCommand.TryParse(tokenReference, creatorAddress, Context.Guild.Id, rewardRole.Id, out var command))
-            {
-                await ReplyAsync($"The supplied token reference '{tokenReference}' is not valid. Token references can either be '*' denoting all tokens for a creator bear the reward. Alternatively they can be a specific token id or a range, e.g. '123-456' meaning all tokens between ids 123 and 456 bear the reward. This is all pretty complicated, in most scenarios you will really just need: *.");
-                return;
-            }
+            var command = new GuildRewardReferenceCommand(Context.Guild.Id, rewardRole.Id, collectionId);
 
             if (action == "add")
             {
-                await QueueFactory(GuildReferenceCommand.AddRewardQueueName).SendJsonMessageAsync(command);
+                await QueueFactory(GuildRewardReferenceCommand.AddRewardQueueName).SendJsonMessageAsync(command);
                 await ReplyAsync($"Reward successfully added. If you want to delete this reward update this message from 'add' to 'remove'.");
             }
             else if (action == "remove") 
             {
-                await QueueFactory(GuildReferenceCommand.RemoveRewardQueueName).SendJsonMessageAsync(command);
+                await QueueFactory(GuildRewardReferenceCommand.RemoveRewardQueueName).SendJsonMessageAsync(command);
                 await ReplyAsync($"Reward successfully removed.");
             }
            

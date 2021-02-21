@@ -12,6 +12,11 @@
   <title>
     <%= htmlWebpackPlugin.options.title %>
   </title>
+  <script>
+    window.$metaverse = {
+      apiUrl: '<%= VUE_APP_API_URL %>'
+    }
+  </script>
 </head>
 
 <body>

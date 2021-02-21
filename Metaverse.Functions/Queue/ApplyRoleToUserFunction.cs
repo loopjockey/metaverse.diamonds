@@ -14,11 +14,13 @@ namespace Metaverse.Functions.Queue
     {
         private readonly DiscordRestClient _discordClient;
         private readonly BotTokenSetting _botTokenSetting;
+        private readonly ITableStorageClient _tableStorageClient;
 
-        public ApplyRoleToUserFunction(DiscordRestClient discordClient, BotTokenSetting botTokenSetting)
+        public ApplyRoleToUserFunction(DiscordRestClient discordClient, BotTokenSetting botTokenSetting, ITableStorageClient tableStorageClient)
         {
             _discordClient = discordClient;
             _botTokenSetting = botTokenSetting;
+            _tableStorageClient = tableStorageClient;
         }
 
         [FunctionName(nameof(ApplyRoleToUser))]

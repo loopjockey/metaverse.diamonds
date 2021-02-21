@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Collections.Generic;
-using System.Numerics;
-using GraphQL.Client.Abstractions;
 using Discord;
 using Discord.Rest;
 using Metaverse.Functions.Data;
@@ -17,21 +15,22 @@ using Nethereum.Signer;
 using Metaverse.Functions.Common.Configuration;
 using Metaverse.Functions.Models;
 using Discord.Net;
+using Metaverse.Functions.Common.OpenSea;
 
 namespace Metaverse.Functions.Http
 {
     public class GetMyRewardsForGuildFunction
     {
         private readonly ITableStorageClient _tableStorageClient;
-        private readonly IGraphQLClient _eip721GraphClient;
+        private readonly OpenSeaApiClient _openSeaApiClient;
         private readonly DiscordRestClient _discordClient;
         private readonly EthereumMessageSigner _ethereumMessageSigner;
         private readonly BotTokenSetting _botTokenSetting;
 
-        public GetMyRewardsForGuildFunction(ITableStorageClient tableStorageClient, IGraphQLClient eip721GraphClient, DiscordRestClient discordClient, EthereumMessageSigner ethereumMessageSigner, BotTokenSetting botTokenSetting)
+        public GetMyRewardsForGuildFunction(ITableStorageClient tableStorageClient, OpenSeaApiClient openSeaApiClient, DiscordRestClient discordClient, EthereumMessageSigner ethereumMessageSigner, BotTokenSetting botTokenSetting)
         {
             _tableStorageClient = tableStorageClient;
-            _eip721GraphClient = eip721GraphClient;
+            _openSeaApiClient = openSeaApiClient;
             _discordClient = discordClient;
             _ethereumMessageSigner = ethereumMessageSigner;
             _botTokenSetting = botTokenSetting;
@@ -63,12 +62,14 @@ namespace Metaverse.Functions.Http
             await using (serverDiscordSession)
             {
                 var tokenRewards = _tableStorageClient.GetTokenRewardDefinitions(pGuildId);
+                var uniqueCollectionIds = tokenRewards.Select(r => r.CollectionId).ToHashSet();
                 try
                 {
                     var getGuildTask = _discordClient.GetGuildAsync(pGuildId);
-                    var getAddressTokensTask = _eip721GraphClient.GetAddressTokensAsync(addressOfSigner);
                     var getGuildUserTask = _discordClient.GetGuildUserAsync(pGuildId, userId);
-                    await Task.WhenAll(getGuildTask, getGuildUserTask, getAddressTokensTask);
+                    await Task.WhenAll(getGuildTask, getGuildUserTask);
+
+                    var collectionsOwned = await _openSeaApiClient.WhichCollectionsAreOwnedByAddress(addressOfSigner, uniqueCollectionIds);
 
                     var rolesWithRewards = new HashSet<ulong>();
                     var applicableRoles = new Dictionary<string, string>();
@@ -76,9 +77,8 @@ namespace Metaverse.Functions.Http
                     {
                         rolesWithRewards.Add(reward.TargetRoleId);
                         if (applicableRoles.ContainsKey(reward.TargetRoleId.ToString())) continue;
-                        var applicableToken = getAddressTokensTask.Result.FirstOrDefault(t => reward.AppliesTo(t.address, t.tokenId));
-                        if (applicableToken == default) continue;
-                        applicableRoles[reward.TargetRoleId.ToString()] = $"{applicableToken.address}/{applicableToken.tokenId}";                    
+                        if (!collectionsOwned[reward.CollectionId]) continue;
+                        applicableRoles[reward.TargetRoleId.ToString()] = reward.CollectionId;                    
                     }
 
                     var allRoles =

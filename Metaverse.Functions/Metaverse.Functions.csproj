@@ -6,13 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
-    <PackageReference Include="GraphQL" Version="3.3.1" />
-    <PackageReference Include="GraphQL.Client" Version="3.2.1" />
-    <PackageReference Include="GraphQL.Client.Abstractions" Version="3.2.1" />
-    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.1" />
-    <PackageReference Include="GraphQL.Common" Version="1.0.3" />
-    <PackageReference Include="GraphQL.NewtonsoftJson" Version="3.3.1" />
-    <PackageReference Include="GraphQL.Primitives" Version="3.2.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.15.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.3" />
@@ -24,6 +17,7 @@
     <PackageReference Include="Nethereum.StandardNonFungibleTokenERC721" Version="3.8.0" />
     <PackageReference Include="Nethereum.Web3" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="RestSharp" Version="106.11.7" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
   <ItemGroup>

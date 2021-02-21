@@ -5,14 +5,20 @@ using Metaverse.Bot.Discord;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Queues;
+using Metaverse.Core;
+using Microsoft.Extensions.Hosting;
+using System.Threading;
 
 namespace Metaverse.Bot
 {
     class Program
     {
+        private static readonly string DefaultBotToken = "NzkwNTU5MTIwNjAzODczMzIw.X-CXjg.RxQemVh7O3Y4-tiVVZ_twsmyei0";
+        private static readonly string DefaultStorageConnectionString = "UseDevelopmentStorage=true";
+        private const ulong GlobalBotAdminId = 167519206223380482;
+
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
         public async Task MainAsync()
@@ -26,17 +32,49 @@ namespace Metaverse.Bot
                 commandService.Log += LogAsync;
 
                 client.JoinedGuild += (g) => client
-                    .GetGuild(g.Id)
-                    .GetTextChannel(g.DefaultChannel.Id)
-                    .SendMessageAsync("Hey there! Please go to https://setup.metaverse.diamonds to find comprehensive setup instructions for your guild.");
+                        .GetGuild(g.Id)
+                        .GetTextChannel(g.DefaultChannel.Id)
+                        .SendMessageAsync($"Your guild has been registered! Please navigate to https://guilds.metaverse.diamonds/{g.Id} to complete setup (you may need to refresh the page).");
 
-                await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("BotToken"));
-                await client.StartAsync();
+                var hardStopTokenSource = new CancellationTokenSource();
+                client.MessageReceived += (m) =>
+                {
+                    if (m?.Author?.Id == GlobalBotAdminId && m.Content == "!mvadmin hard_stop_all")
+                    {
+                        hardStopTokenSource.Cancel();
+                        return m.AddReactionAsync(new Emoji("🗸"));
+                    }
+                    return Task.CompletedTask;
+                };
 
-                var commandHandlingService = services.GetRequiredService<CommandHandlingService>();
-                await commandHandlingService.InitializeAsync();
+                try
+                {
+                    var botToken = Environment.GetEnvironmentVariable("BotToken") ?? DefaultBotToken ?? throw new Exception("Bot token not specified");
+                    await client.LoginAsync(TokenType.Bot, botToken);
+                    await client.StartAsync();
 
-                await Task.Delay(Timeout.Infinite);
+                    var commandHandlingService = services.GetRequiredService<CommandHandlingService>();
+                    await commandHandlingService.InitializeAsync();
+
+                    var queueFactory = services.GetRequiredService<Func<string, QueueClient>>();
+                    await Task.WhenAll(
+                        queueFactory(ApplyRoleToUserCommand.QueueName).CreateIfNotExistsAsync(),
+                        queueFactory(GuildRewardReferenceCommand.AddRewardQueueName).CreateIfNotExistsAsync(),
+                        queueFactory(GuildRewardReferenceCommand.RemoveRewardQueueName).CreateIfNotExistsAsync(),
+                        queueFactory(UpdateGuildConfigurationCommand.QueueName).CreateIfNotExistsAsync());
+
+                    var builder = new HostBuilder();
+                    builder.ConfigureWebJobs();
+                    var host = builder.Build();
+                    using (host)
+                    {
+                        await host.RunAsync(hardStopTokenSource.Token);
+                    }
+                }
+                finally 
+                {
+                    await client.LogoutAsync();
+                }
             }
         }
 
@@ -49,7 +87,11 @@ namespace Metaverse.Bot
 
         private ServiceProvider ConfigureServices()
         {
-            var storageConnectionString = Environment.GetEnvironmentVariable("ConnectionStrings__StorageAccountConnectionString");
+            var storageConnectionString = 
+                Environment.GetEnvironmentVariable("ConnectionStrings__StorageAccountConnectionString") ?? 
+                DefaultStorageConnectionString ??
+                throw new Exception("Storage connection");
+
             return new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<CommandService>()

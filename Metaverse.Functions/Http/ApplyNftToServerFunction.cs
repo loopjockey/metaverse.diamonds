@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Linq;
-using GraphQL.Client.Abstractions;
 using Discord;
 using Discord.Rest;
 using System;
@@ -16,21 +15,22 @@ using Nethereum.Util;
 using Nethereum.Signer;
 using Metaverse.Core;
 using Metaverse.Functions.Common.Configuration;
+using Metaverse.Functions.Common.OpenSea;
 
 namespace Metaverse.Functions.Http
 {
     public class ApplyNftToServerFunction
     {
         private readonly ITableStorageClient _tableStorageClient;
-        private readonly IGraphQLClient _eip721GraphClient;
+        private readonly OpenSeaApiClient _openSeaApiClient;
         private readonly DiscordRestClient _discordClient;
         private readonly EthereumMessageSigner _ethereumMessageSigner;
         private readonly BotTokenSetting _botTokenSetting;
 
-        public ApplyNftToServerFunction(ITableStorageClient tableStorageClient, IGraphQLClient eip721GraphClient, DiscordRestClient discordClient, EthereumMessageSigner ethereumMessageSigner, BotTokenSetting botTokenSetting)
+        public ApplyNftToServerFunction(ITableStorageClient tableStorageClient, OpenSeaApiClient openSeaApiClient, DiscordRestClient discordClient, EthereumMessageSigner ethereumMessageSigner, BotTokenSetting botTokenSetting)
         {
             _tableStorageClient = tableStorageClient;
-            _eip721GraphClient = eip721GraphClient;
+            _openSeaApiClient = openSeaApiClient;
             _discordClient = discordClient;
             _ethereumMessageSigner = ethereumMessageSigner;
             _botTokenSetting = botTokenSetting;
@@ -38,13 +38,12 @@ namespace Metaverse.Functions.Http
 
         [FunctionName(nameof(ApplyNftToServer))]
         public async Task<IActionResult> ApplyNftToServer(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/guilds/{guildId}/rewards/{roleId}/apply/{creatorAddress}/{tokenId}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1/guilds/{guildId}/rewards/{roleId}/apply/{collectionId}")] HttpRequest req,
             [Queue(ApplyRoleToUserCommand.QueueName)] ICollector<ApplyRoleToUserCommand> collector,
             ILogger log,
             string guildId,
             string roleId,
-            string creatorAddress,
-            string tokenId) 
+            string collectionId) 
         {
             var authToken = req.Headers.GetAuthorizationHeader();
             if (authToken == null) return new UnauthorizedResult();
@@ -52,13 +51,11 @@ namespace Metaverse.Functions.Http
             if (expiryDate < DateTimeOffset.UtcNow) return new UnauthorizedResult();
             if (!ulong.TryParse(guildId, out var pGuildId)) return new BadRequestObjectResult("Invalid guild ID");
             if (!ulong.TryParse(roleId, out var pRoleId)) return new BadRequestObjectResult("Invalid role ID");
-            if (!BigInteger.TryParse(tokenId, out var pTokenId)) return new BadRequestObjectResult("Invalid token ID");
-            if (!AddressUtil.Current.IsValidEthereumAddressHexFormat(creatorAddress)) return new BadRequestObjectResult("Invalid creator address."); 
 
             var applicableReward = _tableStorageClient
                 .GetTokenRewardDefinitions(pGuildId)
                 .Where(r => r.TargetRoleId == pRoleId)
-                .Where(r => r.AppliesTo(creatorAddress, pTokenId))
+                .Where(r => r.CollectionId == collectionId)
                 .FirstOrDefault();
             if (applicableReward == default) return new NotFoundObjectResult("There is no applicable reward for this token.");
 
@@ -75,8 +72,8 @@ namespace Metaverse.Functions.Http
             var serverDiscordSession = await _discordClient.ScopedLoginAsync(TokenType.Bot, _botTokenSetting);
             await using (serverDiscordSession)
             {
-                var token = await _eip721GraphClient.GetAddressTokenAsync(addressOfSigner, creatorAddress, pTokenId);
-                if (token == default) return new NotFoundObjectResult($"This address does not currently own the token {creatorAddress}:{pTokenId}.");
+                var (hasToken, erc721TokenRef) = await _openSeaApiClient.DoesAddressOwnTokenInCollection(addressOfSigner, collectionId);
+                if (!hasToken) return new NotFoundObjectResult($"This address does not currently own a token within the collection {collectionId}.");
 
                 var getGuildTask = _discordClient.GetGuildAsync(pGuildId);
                 var getGuildUserTask = _discordClient.GetGuildUserAsync(pGuildId, userId);

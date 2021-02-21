@@ -10,7 +10,7 @@ namespace Metaverse.Bot.Discord
 
         [Command("help")]
         [RequireContext(ContextType.Guild, ErrorMessage = "Sorry, this command must be ran from within a server, not a DM!")]
-        public Task GuildHelpAsync() => ReplyAsync($"Hey @{Context.User.Username}! You can find all the information you need at https://server.metaverse.diamonds/{Context.Guild.Id}");
+        public Task GuildHelpAsync() => ReplyAsync($"Hey @{Context.User.Username}! You can find everything you need at https://guilds.metaverse.diamonds/{Context.Guild.Id}");
 
         [Command("setup")]
         public Task GuildSetupAsync() => ReplyAsync($"Hey @{Context.User.Username}! You can find all the server setup information you need at https://setup.metaverse.diamonds");

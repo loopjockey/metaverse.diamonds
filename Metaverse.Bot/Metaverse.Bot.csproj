@@ -8,6 +8,8 @@
     <PackageReference Include="Azure.Storage.Queues" Version="12.6.0" />
     <PackageReference Include="Discord.Net" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.25" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.25" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
     <PackageReference Include="Nethereum.Signer" Version="3.8.0" />
     <PackageReference Include="Nethereum.StandardNonFungibleTokenERC721" Version="3.8.0" />

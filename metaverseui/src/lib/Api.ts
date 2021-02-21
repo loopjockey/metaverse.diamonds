@@ -1,7 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
-
-moment()
+import Config from '@/lib/Config.ts';
 
 export class AuthenticationData {
     get expiryTime(): moment.Moment | null {
@@ -53,7 +52,7 @@ export class Api {
 
     public create() {
         return axios.create({
-            baseURL: 'http://localhost:7071/api/v1'
+            baseURL: Config.apiUrl
         });
     }
 

@@ -23,25 +23,26 @@ namespace Metaverse.Functions.Data
             return configuration?.Value;
         }
 
-        public static async Task AddTokenRewardAsync(this ITableStorageClient tables, ulong guildId, TokenRewardEntity.Row row)
+        public static async Task AddTokenRewardAsync(this ITableStorageClient tables, ulong guildId, ulong targetRoleId, string collectionId)
         {
-            await tables.InsertOrReplaceAsync(TokenRewardEntity.TableName, new TokenRewardEntity(guildId, DateTimeOffset.UtcNow, row));
+            await tables.InsertOrReplaceAsync(GuildRewardEntity.TableName, new GuildRewardEntity(guildId, DateTimeOffset.UtcNow, targetRoleId, collectionId));
         }
 
-        public static async Task RemoveTokenRewardAsync(this ITableStorageClient tables, ulong guildId, TokenRewardEntity.Row row)
+        public static async Task RemoveTokenRewardAsync(this ITableStorageClient tables, ulong guildId, ulong targetRoleId, string collectionId)
         {
-            var partition = new TokenRewardEntity.PartitionKey(guildId);
-            await tables.DeleteAsync(TokenRewardEntity.TableName, partition.ToString(), row.ToString());
+            var partition = new GuildRewardEntity.Partition(guildId);
+            var rowKey = new GuildRewardEntity.Row(targetRoleId, collectionId);
+            await tables.DeleteAsync(GuildRewardEntity.TableName, partition.ToString(), rowKey.ToString());
         }
 
-        public static TokenRewardEntity[] GetTokenRewardDefinitions(this ITableStorageClient tables, ulong guildId)
+        public static GuildRewardEntity[] GetTokenRewardDefinitions(this ITableStorageClient tables, ulong guildId)
         {
-            return tables.GetFirstPageOfEntities<TokenRewardEntity>(TokenRewardEntity.TableName, new TokenRewardEntity.PartitionKey(guildId).ToString());
+            return tables.GetFirstPageOfEntities<GuildRewardEntity>(GuildRewardEntity.TableName, new GuildRewardEntity.Partition(guildId).ToString());
         }
 
         public static string[] GetCreatorAddressesForGuild(this ITableStorageClient tables, ulong guildId) 
         { 
-            return tables.GetTokenRewardDefinitions(guildId).Select(tr => tr.CreatorAddress).Distinct().ToArray();
+            return tables.GetTokenRewardDefinitions(guildId).Select(tr => tr.CollectionId).Distinct().ToArray();
         }
     }
 }
